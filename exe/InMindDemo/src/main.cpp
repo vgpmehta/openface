@@ -3,7 +3,7 @@
 * @Date:   2016-05-09T21:14:02-04:00
 * @Email:  chirag.raman@gmail.com
 * @Last modified by:   chirag
-* @Last modified time: 2016-07-11T15:25:23-04:00
+* @Last modified time: 2016-07-25T17:33:20-04:00
 * @License: Copyright (C) 2016 Multicomp Lab. All rights reserved.
 */
 
@@ -15,6 +15,7 @@ extern "C" {
 #include "libavutil/avutil.h"
 #include "libavutil/imgutils.h"
 #include "libavdevice/avdevice.h"
+#include "libswscale/swscale.h"
 }
 
 /********
@@ -55,6 +56,7 @@ struct VideoDestintionAttributes {
 
 static AVCodecContext *video_decode_context = NULL;
 static AVFrame *frame = NULL;
+static AVFrame *frame_rgb = NULL;
 static int video_stream_index = -1;
 static VideoDestintionAttributes video_dest_attr;
 static FILE *video_destination_file = NULL;
@@ -199,6 +201,16 @@ int configure_video_buffer(AVCodecContext *video_decode_context,
     return ret;
 }
 
+void configure_sw_scale_context(SwsContext *&conversion_context,
+                           int width,
+                           int height,
+                           AVPixelFormat input_format,
+                           AVPixelFormat destination_format) {
+    conversion_context = sws_getCachedContext(
+        NULL, width, height, input_format, width, height,
+        destination_format, SWS_BICUBIC, NULL, NULL, NULL);
+}
+
 int setup_frame(AVFrame *&frame) {
     int ret = 0;
     if (!(frame = av_frame_alloc())) {
@@ -211,6 +223,10 @@ int setup_frame(AVFrame *&frame) {
     return ret;
 }
 
+int setup_rgb_frame(AVFrame *&frame, uint8_t *&buffer, int width, int height) {
+    int ret = setup_frame(frame);
+    return ret;
+}
 
 /********
  * DECODE
@@ -359,6 +375,8 @@ int main(int argc, const char *argv[]) {
     AVDictionary *options = NULL;
     AVFormatContext *format_context = NULL;
     AVStream *video_stream = NULL;
+    struct SwsContext *sws_context = NULL;
+    AVPixelFormat destination_format = AV_PIX_FMT_BGR24;
 
     initialize();
     openCam(input_format, options, format_context, device_name);
@@ -379,11 +397,27 @@ int main(int argc, const char *argv[]) {
 
         int buffer_config = configure_video_buffer(video_decode_context,
                                                    &video_dest_attr);
-        int frame_success = setup_frame(frame);
+
+        int width = video_decode_context->width;
+        int height = video_decode_context->height;
+
+        configure_sw_scale_context(sws_context, width, height,
+                                   video_decode_context->pix_fmt,
+                                   destination_format);
+
+        //Setup frames
+        //Both methods should return 0 if successul
+        uint8_t *buffer;
+        int numBytes;
+        numBytes  = avpicture_get_size(destination_format, width, height);
+        buffer = (uint8_t *) av_malloc(numBytes*sizeof(uint8_t));
+
+        int frame_success = (setup_frame(frame) == 0) &&
+            (setup_rgb_frame(frame_rgb, buffer, width, height) == 0);
 
         //Abort if any step of the setup failed
         if (!video_stream || !video_destination_file || buffer_config < 0
-            || frame_success != 0) {
+            || !frame_success) {
             cleanup(video_decode_context,
                     format_context,
                     video_destination_file,
