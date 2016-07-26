@@ -3,7 +3,7 @@
 * @Date:   2016-05-09T21:14:02-04:00
 * @Email:  chirag.raman@gmail.com
 * @Last modified by:   chirag
-* @Last modified time: 2016-07-25T17:33:20-04:00
+* @Last modified time: 2016-07-26T13:50:47-04:00
 * @License: Copyright (C) 2016 Multicomp Lab. All rights reserved.
 */
 
@@ -17,6 +17,8 @@ extern "C" {
 #include "libavdevice/avdevice.h"
 #include "libswscale/swscale.h"
 }
+
+#include "opencv2/imgproc/imgproc.hpp"
 
 /********
  * HELPERS
@@ -93,7 +95,7 @@ void init_options(AVDictionary *&options) {
  * DEVICE INTERACTION
  *******/
 
-void openCam(AVInputFormat *&input_format, AVDictionary *&options,
+void open_input(AVInputFormat *&input_format, AVDictionary *&options,
             AVFormatContext *&format_context, char const *device_name) {
     //Format context
     init_format_context(format_context);
@@ -189,8 +191,11 @@ int setup_frame(AVFrame *&frame) {
     return ret;
 }
 
-int setup_rgb_frame(AVFrame *&frame, uint8_t *&buffer, int width, int height) {
+int setup_rgb_frame(AVFrame *&frame, uint8_t *&buffer,
+                    AVPixelFormat pixel_format, int width, int height) {
     int ret = setup_frame(frame);
+    avpicture_fill((AVPicture *)frame, buffer, pixel_format, width, height);
+
     return ret;
 }
 
@@ -198,8 +203,10 @@ int setup_rgb_frame(AVFrame *&frame, uint8_t *&buffer, int width, int height) {
  * DECODE
  *******/
  int decode_packet(AVPacket packet,
+                   SwsContext *&sws_context,
                    int *got_frame,
                    int *video_frame_count,
+                   int height,
                    int cached){
      int ret = 0;
      int decoded = packet.size;
@@ -225,6 +232,19 @@ int setup_rgb_frame(AVFrame *&frame, uint8_t *&buffer, int width, int height) {
                        << " n:" << (*video_frame_count)++
                        << " coded:" <<  frame->coded_picture_number
                        << " pts:" << frame->pts << std::endl;
+              sws_scale(
+                  sws_context,
+                  ((AVPicture*)frame)->data,
+                  ((AVPicture*)frame)->linesize,
+                  0,
+                  height,
+                  ((AVPicture *)frame_rgb)->data,
+                  ((AVPicture *)frame_rgb)->linesize);
+
+              cv::Mat image_mat(frame->height, frame->width, CV_8UC3,
+                                frame_rgb->data[0]);
+
+              //TODO:LG: Call the processing function here with image_mat
          }
      }
 
@@ -241,7 +261,9 @@ int setup_rgb_frame(AVFrame *&frame, uint8_t *&buffer, int width, int height) {
  * GRAB FRAMES
  *******/
 
-int process_frames(AVFormatContext *context) {
+int process_frames(AVFormatContext *context,
+                   SwsContext *&sws_context,
+                   int height) {
     int ret = 0;
     int got_frame;
     int video_frame_count = 0;
@@ -266,7 +288,8 @@ int process_frames(AVFormatContext *context) {
 
         orig_packet = packet;
         do {
-            ret = decode_packet(packet, &got_frame, &video_frame_count, 0);
+            ret = decode_packet(packet, sws_context,
+                                &got_frame, &video_frame_count, height, 0);
             if (ret < 0) {
                 break;
             }
@@ -280,7 +303,8 @@ int process_frames(AVFormatContext *context) {
     packet.data = NULL;
     packet.size = 0;
     do {
-        decode_packet(packet, &got_frame, &video_frame_count, 1);
+        decode_packet(packet, sws_context,
+                      &got_frame, &video_frame_count, height, 1);
     } while (got_frame);
 
     av_log(0, AV_LOG_INFO, "Demuxing succeeded\n");
@@ -295,9 +319,13 @@ int process_frames(AVFormatContext *context) {
 void cleanup(AVCodecContext *decode_context,
              AVFormatContext *format_context,
              AVFrame *frame,
+             AVFrame *frame_rgb,
+             SwsContext *sws_context) {
     avcodec_close(decode_context);
     avformat_close_input(&format_context);
     av_frame_free(&frame);
+    av_frame_free(&frame_rgb);
+    sws_freeContext(sws_context);
 }
 
 
@@ -325,7 +353,7 @@ int main(int argc, const char *argv[]) {
     AVPixelFormat destination_format = AV_PIX_FMT_BGR24;
 
     initialize();
-    openCam(input_format, options, format_context, device_name);
+    open_input(input_format, options, format_context, device_name);
     retrieve_stream_info(format_context);
 
     //Setup video decoding
@@ -354,12 +382,14 @@ int main(int argc, const char *argv[]) {
         buffer = (uint8_t *) av_malloc(numBytes*sizeof(uint8_t));
 
         int frame_success = (setup_frame(frame) == 0) &&
-            (setup_rgb_frame(frame_rgb, buffer, width, height) == 0);
+            (setup_rgb_frame(frame_rgb, buffer, destination_format,
+                             width, height) == 0);
 
         //Abort if any step of the setup failed
         if (!video_stream || !frame_success) {
             cleanup(video_decode_context,
                     format_context,
+                    frame, frame_rgb, sws_context);
             exit(1);
         } else {
             av_log(0, AV_LOG_INFO, "Demuxing video from %s into %s\n",
@@ -378,7 +408,8 @@ int main(int argc, const char *argv[]) {
     std::cout<<std::endl;
 
     //Start processing frames
-    ret = process_frames(format_context);
+    ret = process_frames(format_context, sws_context,
+                         video_decode_context->height);
 
     return ret < 0;
 }
