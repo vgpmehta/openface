@@ -49,6 +49,8 @@ else()
     message( FATAL_ERROR "FFMPEG not found" )
 endif()
 
+find_package( OpenCV REQUIRED )
+
 # get all *.cpp files from src to build target
 file(GLOB SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*${SOURCE_EXT_PATTERN})
 source_group("Source Files" FILES ${SOURCE_FILES})
@@ -64,4 +66,4 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
 # build target
 add_executable( ${PROJECT_NAME} ${SOURCE_FILES} )
-target_link_libraries( ${PROJECT_NAME} ${FFMPEG_LIBRARIES} )
+target_link_libraries( ${PROJECT_NAME} ${FFMPEG_LIBRARIES} ${OpenCV_LIBS} )
