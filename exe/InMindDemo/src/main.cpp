@@ -3,7 +3,7 @@
 * @Date:   2016-05-09T21:14:02-04:00
 * @Email:  chirag.raman@gmail.com
 * @Last modified by:   chirag
-* @Last modified time: 2016-07-26T16:59:01-04:00
+* @Last modified time: 2016-07-26T17:13:03-04:00
 * @License: Copyright (C) 2016 Multicomp Lab. All rights reserved.
 */
 
@@ -256,6 +256,9 @@ int setup_rgb_frame(AVFrame *&frame, uint8_t *&buffer,
                                 frame_rgb->data[0]);
 
               //TODO:LG: Call the processing function here with image_mat
+              //Or, for example
+              //cv::imshow("display",image_mat);
+              //cvWaitKey(1);
          }
      }
 
