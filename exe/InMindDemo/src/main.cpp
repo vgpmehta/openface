@@ -43,12 +43,6 @@ std::string media_type_string(enum AVMediaType media_type) {
     }
 }
 
-struct VideoDestintionAttributes {
-    uint8_t *video_destination_data[4] = {NULL};
-    int video_destination_linesize[4];
-    int video_destination_bufsize;
-};
-
 
 /********
  * STATIC VARIABLES
@@ -58,8 +52,6 @@ static AVCodecContext *video_decode_context = NULL;
 static AVFrame *frame = NULL;
 static AVFrame *frame_rgb = NULL;
 static int video_stream_index = -1;
-static VideoDestintionAttributes video_dest_attr;
-static FILE *video_destination_file = NULL;
 
 /********
  * INITIALISATION
@@ -175,32 +167,6 @@ int open_codec_context(int *stream_index, AVFormatContext *format_context,
     return ret;
 }
 
-FILE* configure_video_destination_file(const char *filename) {
-    FILE *dest_file = fopen(filename, "wb");
-    if (!dest_file) {
-        std::cerr <<  "Could not open destination file " << filename
-                  << std::endl;
-    }
-    return dest_file;
-}
-
-int configure_video_buffer(AVCodecContext *video_decode_context,
-                           VideoDestintionAttributes *dest_attr) {
-    int ret = 0;
-
-    // allocate image where the decoded image will be put
-    ret = av_image_alloc(dest_attr->video_destination_data,
-                         dest_attr->video_destination_linesize,
-                         video_decode_context->width, video_decode_context->height,
-                         video_decode_context->pix_fmt, 1);
-    if (ret < 0) {
-        std::cerr <<  "Could not allocate raw video buffer" << std::endl;
-    } else {
-        dest_attr->video_destination_bufsize = ret;
-    }
-    return ret;
-}
-
 void configure_sw_scale_context(SwsContext *&conversion_context,
                            int width,
                            int height,
@@ -259,22 +225,6 @@ int setup_rgb_frame(AVFrame *&frame, uint8_t *&buffer, int width, int height) {
                        << " n:" << (*video_frame_count)++
                        << " coded:" <<  frame->coded_picture_number
                        << " pts:" << frame->pts << std::endl;
-
-             /*Copy decoded frame to destination buffer:
-              *This is required since rawvideo expects non aligned data*/
-             av_image_copy(video_dest_attr.video_destination_data,
-                           video_dest_attr.video_destination_linesize,
-                           (const uint8_t **)(frame->data),
-                           frame->linesize,
-                           video_decode_context->pix_fmt,
-                           video_decode_context->width,
-                           video_decode_context->height);
-
-             //Write to rawvideo file
-             fwrite(video_dest_attr.video_destination_data[0],
-                    1,
-                    video_dest_attr.video_destination_bufsize,
-                    video_destination_file);
          }
      }
 
@@ -344,14 +294,10 @@ int process_frames(AVFormatContext *context) {
 
 void cleanup(AVCodecContext *decode_context,
              AVFormatContext *format_context,
-             FILE *dest_file,
              AVFrame *frame,
-             VideoDestintionAttributes *attr) {
     avcodec_close(decode_context);
     avformat_close_input(&format_context);
-    if(dest_file) { fclose(dest_file); }
     av_frame_free(&frame);
-    av_free(attr->video_destination_data[0]);
 }
 
 
@@ -392,11 +338,6 @@ int main(int argc, const char *argv[]) {
         }
 
         video_decode_context = video_stream->codec;
-        video_destination_file =
-        configure_video_destination_file(video_destination_filename);
-
-        int buffer_config = configure_video_buffer(video_decode_context,
-                                                   &video_dest_attr);
 
         int width = video_decode_context->width;
         int height = video_decode_context->height;
@@ -416,13 +357,9 @@ int main(int argc, const char *argv[]) {
             (setup_rgb_frame(frame_rgb, buffer, width, height) == 0);
 
         //Abort if any step of the setup failed
-        if (!video_stream || !video_destination_file || buffer_config < 0
-            || !frame_success) {
+        if (!video_stream || !frame_success) {
             cleanup(video_decode_context,
                     format_context,
-                    video_destination_file,
-                    frame,
-                    &video_dest_attr);
             exit(1);
         } else {
             av_log(0, AV_LOG_INFO, "Demuxing video from %s into %s\n",
