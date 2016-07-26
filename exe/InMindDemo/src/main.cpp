@@ -3,7 +3,7 @@
 * @Date:   2016-05-09T21:14:02-04:00
 * @Email:  chirag.raman@gmail.com
 * @Last modified by:   chirag
-* @Last modified time: 2016-07-26T13:50:47-04:00
+* @Last modified time: 2016-07-26T14:06:06-04:00
 * @License: Copyright (C) 2016 Multicomp Lab. All rights reserved.
 */
 
@@ -334,8 +334,8 @@ void cleanup(AVCodecContext *decode_context,
  *******/
 
 int main(int argc, const char *argv[]) {
-    if (argc != 3) {
-        std::cerr << "Usage : " << argv[0] << " device_path video_output_path"
+    if (argc != 2) {
+        std::cerr << "Usage : " << argv[0] << " input_device_path"
                   << std::endl;
         exit(1);
     }
@@ -343,7 +343,6 @@ int main(int argc, const char *argv[]) {
     //Declare local variables
     int ret = 0;
     char const *device_name = argv[1];
-    const char *video_destination_filename = argv[2];
 
     AVInputFormat *input_format = NULL;
     AVDictionary *options = NULL;
@@ -392,14 +391,7 @@ int main(int argc, const char *argv[]) {
                     frame, frame_rgb, sws_context);
             exit(1);
         } else {
-            av_log(0, AV_LOG_INFO, "Demuxing video from %s into %s\n",
-                                    device_name, video_destination_filename);
-            std::cout << "Play output video with the command:\n"
-                      << "ffplay -f rawvideo -pixel_format "
-                      << av_get_pix_fmt_name(video_decode_context->pix_fmt)
-                      << " -video_size " << video_decode_context->width << "x"
-                      << video_decode_context->height << " "
-                      << video_destination_filename << std::endl <<std::endl;
+            av_log(0, AV_LOG_INFO, "Demuxing video from %s", device_name);
         }
     }
 
