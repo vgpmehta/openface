@@ -3,7 +3,7 @@
 * @Date:   2016-05-09T21:14:02-04:00
 * @Email:  chirag.raman@gmail.com
 * @Last modified by:   chirag
-* @Last modified time: 2016-07-26T17:13:03-04:00
+* @Last modified time: 2016-07-27T12:14:31-04:00
 * @License: Copyright (C) 2016 Multicomp Lab. All rights reserved.
 */
 
@@ -412,6 +412,9 @@ int main(int argc, const char *argv[]) {
     //Dump input information to stderr
     av_dump_format(format_context, 0, device_name, 0);
     std::cout<<std::endl;
+
+    //TODO:LG: Initialize any OpenFace dependencies
+    // Initialise FaceAnalyser
 
     //Start processing frames
     ret = process_frames(format_context, sws_context,
