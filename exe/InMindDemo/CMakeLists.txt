@@ -32,7 +32,7 @@ endif()
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include )
 
 # find dependency packages
-find_package( FFmpeg COMPONENTS AVCODEC AVFORMAT AVUTIL AVDEVICE REQUIRED )
+find_package( FFmpeg COMPONENTS AVCODEC AVFORMAT AVUTIL AVDEVICE  SWSCALE REQUIRED )
 
 if(FFMPEG_FOUND)
 #  FFMPEG_INCLUDE_DIRS  - Include directory necessary for using the required
