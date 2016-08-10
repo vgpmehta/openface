@@ -115,8 +115,8 @@ void create_directories(string output_path)
 }
 
 // Extracting the following command line arguments -f, -fd, -op, -of, -ov (and possible ordered repetitions)
-void get_video_input_output_params(vector<string> &input_video_files, vector<string> &depth_dirs,
-	vector<string> &output_files, vector<string> &output_video_files, bool& world_coordinates_pose, vector<string> &arguments)
+void get_video_input_output_params(vector<string> &input_video_files, vector<string> &depth_dirs, vector<string> &output_files,
+	vector<string> &output_video_files, bool& world_coordinates_pose, vector<string> &arguments)
 {
 	bool* valid = new bool[arguments.size()];
 
@@ -128,46 +128,62 @@ void get_video_input_output_params(vector<string> &input_video_files, vector<str
 	// By default use rotation with respect to camera (not world coordinates)
 	world_coordinates_pose = false;
 
-	string root = "";
+	string input_root = "";
+	string output_root = "";
+
+	string separator = string(1, boost::filesystem::path::preferred_separator);
+
 	// First check if there is a root argument (so that videos and outputs could be defined more easilly)
 	for(size_t i = 0; i < arguments.size(); ++i)
 	{
-		if (arguments[i].compare("-root") == 0) 
-		{                    
-			root = arguments[i + 1];
-			// Do not discard root as it might be used in other later steps
+		if (arguments[i].compare("-root") == 0)
+		{
+			input_root = arguments[i + 1] + separator;
+			output_root = arguments[i + 1] + separator;
+
+			// Add the / or \ to the directory
 			i++;
-		}		
+		}
+		if (arguments[i].compare("-inroot") == 0)
+		{
+			input_root = arguments[i + 1] + separator;
+			i++;
+		}
+		if (arguments[i].compare("-outroot") == 0)
+		{
+			output_root = arguments[i + 1] + separator;
+			i++;
+		}
 	}
 
 	for(size_t i = 0; i < arguments.size(); ++i)
 	{
 		if (arguments[i].compare("-f") == 0) 
 		{                    
-			input_video_files.push_back(root + arguments[i + 1]);			
+			input_video_files.push_back(input_root + arguments[i + 1]);
 			valid[i] = false;
 			valid[i+1] = false;			
 			i++;
 		}		
 		else if (arguments[i].compare("-fd") == 0) 
 		{                    
-			depth_dirs.push_back(root + arguments[i + 1]);
+			depth_dirs.push_back(input_root + arguments[i + 1]);
 			valid[i] = false;
 			valid[i+1] = false;		
 			i++;
 		}
 		else if (arguments[i].compare("-of") == 0)
 		{
-			output_files.push_back(root + arguments[i + 1]);
-			create_directory_from_file(root + arguments[i + 1]);
+			output_files.push_back(output_root + arguments[i + 1]);
+			create_directory_from_file(output_root + arguments[i + 1]);
 			valid[i] = false;
 			valid[i+1] = false;
 			i++;
 		}
 		else if (arguments[i].compare("-ov") == 0)
 		{
-			output_video_files.push_back(root + arguments[i + 1]);
-			create_directory_from_file(root + arguments[i + 1]);
+			output_video_files.push_back(output_root + arguments[i + 1]);
+			create_directory_from_file(output_root + arguments[i + 1]);
 			valid[i] = false;
 			valid[i+1] = false;
 			i++;
@@ -253,19 +269,45 @@ void get_image_input_output_params(vector<string> &input_image_files, vector<str
 	
 	string out_pts_dir, out_pose_dir, out_img_dir;
 
+	string input_root = "";
+	string output_root = "";
+
+	string separator = string(1, boost::filesystem::path::preferred_separator);
+
+	// First check if there is a root argument (so that videos and outputs could be defined more easilly)
+	for (size_t i = 0; i < arguments.size(); ++i)
+	{
+		if (arguments[i].compare("-root") == 0)
+		{
+			input_root = arguments[i + 1] + separator;
+			output_root = arguments[i + 1] + separator;
+			i++;
+		}
+		if (arguments[i].compare("-inroot") == 0)
+		{
+			input_root = arguments[i + 1] + separator;
+			i++;
+		}
+		if (arguments[i].compare("-outroot") == 0)
+		{
+			output_root = arguments[i + 1] + separator;
+			i++;
+		}
+	}
+
 	for(size_t i = 0; i < arguments.size(); ++i)
 	{
 		valid[i] = true;
 		if (arguments[i].compare("-f") == 0) 
 		{                    
-			input_image_files.push_back(arguments[i + 1]);
+			input_image_files.push_back(input_root + arguments[i + 1]);
 			valid[i] = false;
 			valid[i+1] = false;			
 			i++;
 		}		
 		else if (arguments[i].compare("-fd") == 0) 
 		{                    
-			input_depth_files.push_back(arguments[i + 1]);
+			input_depth_files.push_back(input_root + arguments[i + 1]);
 			valid[i] = false;
 			valid[i+1] = false;		
 			i++;
@@ -355,21 +397,21 @@ void get_image_input_output_params(vector<string> &input_image_files, vector<str
 		}
 		else if (arguments[i].compare("-op") == 0)
 		{
-			output_pose_files.push_back(arguments[i + 1]);
+			output_pose_files.push_back(output_root + arguments[i + 1]);
 			valid[i] = false;
 			valid[i + 1] = false;
 			i++;
 		}
 		else if (arguments[i].compare("-of") == 0)
 		{
-			output_feature_files.push_back(arguments[i + 1]);
+			output_feature_files.push_back(output_root + arguments[i + 1]);
 			valid[i] = false;
 			valid[i+1] = false;
 			i++;
 		} 
 		else if (arguments[i].compare("-oi") == 0)
 		{
-			output_image_files.push_back(arguments[i + 1]);
+			output_image_files.push_back(output_root + arguments[i + 1]);
 			valid[i] = false;
 			valid[i+1] = false;
 			i++;
@@ -384,7 +426,7 @@ void get_image_input_output_params(vector<string> &input_image_files, vector<str
 			path image_loc(input_image_files[i]);
 
 			path fname = image_loc.filename();
-			fname = fname.replace_extension("jpg");
+			fname = fname.replace_extension("bmp");
 			output_image_files.push_back(out_img_dir + "/" + fname.string());
 			
 		}
@@ -862,7 +904,7 @@ void DrawBox(cv::Mat image, cv::Vec6d pose, cv::Scalar color, int thickness, flo
 		// Only draw the line if one of the points is inside the image
 		if(p1.inside(image_rect) || p2.inside(image_rect))
 		{
-			cv::line(image, p1, p2, color, thickness);
+			cv::line(image, p1, p2, color, thickness, CV_AA);
 		}
 		
 	}
@@ -944,7 +986,7 @@ void DrawBox(vector<pair<cv::Point, cv::Point>> lines, cv::Mat image, cv::Scalar
 		// Only draw the line if one of the points is inside the image
 		if(p1.inside(image_rect) || p2.inside(image_rect))
 		{
-			cv::line(image, p1, p2, color, thickness);
+			cv::line(image, p1, p2, color, thickness, CV_AA);
 		}
 		
 	}
@@ -1033,8 +1075,8 @@ void Draw(cv::Mat img, const cv::Mat_<double>& shape2D, const cv::Mat_<int>& vis
 				int thickness = (int)std::ceil(3.0* ((double)img.cols) / 640.0);
 				int thickness_2 = (int)std::ceil(1.0* ((double)img.cols) / 640.0);
 
-				cv::circle(img, featurePoint, 1, cv::Scalar(0,0,255), thickness);
-				cv::circle(img, featurePoint, 1, cv::Scalar(255,0,0), thickness_2);
+				cv::circle(img, featurePoint, 1, cv::Scalar(0,0,255), thickness, CV_AA);
+				cv::circle(img, featurePoint, 1, cv::Scalar(255,0,0), thickness_2, CV_AA);
 			}
 		}
 	}
@@ -1058,9 +1100,9 @@ void Draw(cv::Mat img, const cv::Mat_<double>& shape2D, const cv::Mat_<int>& vis
 
 			cv::Point nextFeaturePoint((int)shape2D.at<double>(next_point), (int)shape2D.at<double>(next_point+n));
 			if( i < 8 || i > 19)
-				cv::line(img, featurePoint, nextFeaturePoint, cv::Scalar(255, 0, 0), thickness_2);
+				cv::line(img, featurePoint, nextFeaturePoint, cv::Scalar(255, 0, 0), thickness_2, CV_AA);
 			else
-				cv::line(img, featurePoint, nextFeaturePoint, cv::Scalar(0, 0, 255), thickness_2);
+				cv::line(img, featurePoint, nextFeaturePoint, cv::Scalar(0, 0, 255), thickness_2, CV_AA);
 
 			//cv::circle(img, featurePoint, 1, Scalar(0,255,0), thickness);
 			//cv::circle(img, featurePoint, 1, Scalar(0,0,255), thickness_2);
@@ -1086,7 +1128,7 @@ void Draw(cv::Mat img, const cv::Mat_<double>& shape2D, const cv::Mat_<int>& vis
 				next_point = 0;
 
 			cv::Point nextFeaturePoint((int)shape2D.at<double>(next_point), (int)shape2D.at<double>(next_point+n));
-			cv::line(img, featurePoint, nextFeaturePoint, cv::Scalar(255, 0, 0), thickness_2);
+			cv::line(img, featurePoint, nextFeaturePoint, cv::Scalar(255, 0, 0), thickness_2, CV_AA);
 		}
 	}
 }
@@ -1121,8 +1163,8 @@ void Draw(cv::Mat img, const cv::Mat_<double>& shape2D)
 		int thickness = (int)std::ceil(5.0* ((double)img.cols) / 640.0);
 		int thickness_2 = (int)std::ceil(1.5* ((double)img.cols) / 640.0);
 
-		cv::circle(img, featurePoint, 1, cv::Scalar(0,0,255), thickness);
-		cv::circle(img, featurePoint, 1, cv::Scalar(255,0,0), thickness_2);
+		cv::circle(img, featurePoint, 1, cv::Scalar(0,0,255), thickness, CV_AA);
+		cv::circle(img, featurePoint, 1, cv::Scalar(255,0,0), thickness_2, CV_AA);
 
 	}
 	
@@ -1155,8 +1197,8 @@ void DrawLandmarks(cv::Mat img, vector<cv::Point> landmarks)
 		int thickness = (int)std::ceil(5.0* ((double)img.cols) / 640.0);
 		int thickness_2 = (int)std::ceil(1.5* ((double)img.cols) / 640.0);
 
-		cv::circle(img, p, 1, cv::Scalar(0,0,255), thickness);
-		cv::circle(img, p, 1, cv::Scalar(255,0,0), thickness_2);
+		cv::circle(img, p, 1, cv::Scalar(0,0,255), thickness, CV_AA);
+		cv::circle(img, p, 1, cv::Scalar(255,0,0), thickness_2, CV_AA);
 	}
 	
 }

@@ -1,4 +1,6 @@
+#TBB library
 include_directories(${TBB_ROOT_DIR}/include)
+
 include_directories(${BOOST_INCLUDE_DIR})
 
 SET(SOURCE
@@ -28,4 +30,4 @@ include_directories(../LandmarkDetector/include)
 add_library( FaceAnalyser ${SOURCE} ${HEADERS})
 
 install (TARGETS FaceAnalyser DESTINATION bin)
-install (FILES HEADERS DESTINATION include)
+install (FILES ${HEADERS} DESTINATION include)
