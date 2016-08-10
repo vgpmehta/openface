@@ -30,6 +30,7 @@ endif()
 
 # add include path, and any additional paths, for the project
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include )
+include_directories(../../lib/local/InmindEmotionDetector/include)
 
 # find dependency packages
 find_package( FFmpeg COMPONENTS AVCODEC AVFORMAT AVUTIL AVDEVICE  SWSCALE REQUIRED )
@@ -64,4 +65,5 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
 # build target
 add_executable( ${PROJECT_NAME} ${SOURCE_FILES} )
+target_link_libraries( ${PROJECT_NAME} InmindEmotionDetector )
 target_link_libraries( ${PROJECT_NAME} ${FFMPEG_LIBRARIES} ${OpenCV_LIBS} )
