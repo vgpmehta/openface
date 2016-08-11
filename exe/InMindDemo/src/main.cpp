@@ -3,7 +3,7 @@
 * @Date:   2016-05-09T21:14:02-04:00
 * @Email:  chirag.raman@gmail.com
 * @Last modified by:   chirag
-* @Last modified time: 2016-07-27T12:14:31-04:00
+* @Last modified time: 2016-08-10T21:42:17-04:00
 * @License: Copyright (C) 2016 Multicomp Lab. All rights reserved.
 */
 
@@ -19,6 +19,9 @@ extern "C" {
 }
 
 #include "opencv2/imgproc/imgproc.hpp"
+#include <InmindEmotionDetector.h>
+
+using namespace InmindDemo;
 
 // Use this to run from the camera with a device id like "/dev/video0" instead
 // of grabbing from an RTSP stream
@@ -58,6 +61,7 @@ static AVCodecContext *video_decode_context = NULL;
 static AVFrame *frame = NULL;
 static AVFrame *frame_rgb = NULL;
 static int video_stream_index = -1;
+static InmindEmotionDetector *emotion_detector = NULL;
 
 /********
  * INITIALISATION
@@ -68,6 +72,8 @@ void initialize() {
     avcodec_register_all();
     avformat_network_init();
     avdevice_register_all();
+
+    emotion_detector = new InmindEmotionDetector();
 }
 
 void init_format_context(AVFormatContext *&context) {
@@ -239,10 +245,11 @@ int setup_rgb_frame(AVFrame *&frame, uint8_t *&buffer,
          }
 
          if (*got_frame) {
+             double pts = av_frame_get_best_effort_timestamp(frame);
              std::cout << "Video frame " << ( cached ? "(cached)" : "" )
                        << " n:" << (*video_frame_count)++
                        << " coded:" <<  frame->coded_picture_number
-                       << " pts:" << frame->pts << std::endl;
+                       << " pts:" << pts << std::endl;
               sws_scale(
                   sws_context,
                   ((AVPicture*)frame)->data,
@@ -255,10 +262,8 @@ int setup_rgb_frame(AVFrame *&frame, uint8_t *&buffer,
               cv::Mat image_mat(frame->height, frame->width, CV_8UC3,
                                 frame_rgb->data[0]);
 
-              //TODO:LG: Call the processing function here with image_mat
-              //Or, for example
-              //cv::imshow("display",image_mat);
-              //cvWaitKey(1);
+              std::vector<double> emotions =
+                emotion_detector.DetectEmotion(image_mat, 0);
          }
      }
 
@@ -340,6 +345,7 @@ void cleanup(AVCodecContext *decode_context,
     av_frame_free(&frame);
     av_frame_free(&frame_rgb);
     sws_freeContext(sws_context);
+    delete emotion_detector;
 }
 
 
@@ -412,9 +418,6 @@ int main(int argc, const char *argv[]) {
     //Dump input information to stderr
     av_dump_format(format_context, 0, device_name, 0);
     std::cout<<std::endl;
-
-    //TODO:LG: Initialize any OpenFace dependencies
-    // Initialise FaceAnalyser
 
     //Start processing frames
     ret = process_frames(format_context, sws_context,
