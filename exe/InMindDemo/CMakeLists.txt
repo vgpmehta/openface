@@ -35,6 +35,8 @@ include_directories(../../lib/local/LandmarkDetector/include)
 include_directories(../../lib/local/FaceAnalyser/include)
 
 # find dependency packages
+
+# Ffmpeg
 find_package( FFmpeg COMPONENTS AVCODEC AVFORMAT AVUTIL AVDEVICE  SWSCALE REQUIRED )
 
 if(FFMPEG_FOUND)
@@ -52,6 +54,7 @@ else()
     message( FATAL_ERROR "FFMPEG not found" )
 endif()
 
+#OpenCV
 find_package( OpenCV REQUIRED )
 
 # get all *.cpp files from src to build target
