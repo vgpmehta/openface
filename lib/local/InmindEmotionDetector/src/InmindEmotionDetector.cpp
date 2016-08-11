@@ -1,6 +1,6 @@
 #include "InmindEmotionDetector.h"
 
-using namespace InMindDemo;
+using namespace InmindDemo;
 
 InmindEmotionDetector::InmindEmotionDetector(string s):root_path(path(s).parent_path().string()),face_model(root_path +"/model/main_clnf_general.txt"),face_analyser(vector<cv::Vec3d>(), 0.7, 112, 112, root_path +"/AU_predictors/AU_all_best.txt", root_path +"/model/tris_68_full.txt")
 {

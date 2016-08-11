@@ -8,7 +8,7 @@ using namespace boost::filesystem;
 using namespace EmotionRecognition;
 using namespace cv;
 
-namespace InMindDemo {
+namespace InmindDemo {
 	class InmindEmotionDetector {
 	public:
 		InmindEmotionDetector(string s);
