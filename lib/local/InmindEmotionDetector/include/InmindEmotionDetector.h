@@ -37,6 +37,11 @@ namespace InmindDemo {
 		double threshold_confusion;
 		double threshold_surprise;
 
+        // Store old prediction
+		double prev_confusion = -1.0;
+		double prev_surprise = -1.0;
+		double alpha = 0.15;
+
 		// Scores
 		double score_confusion;
 		double score_surprise;

@@ -53,6 +53,23 @@ vector<double> InmindEmotionDetector::DetectEmotion(Mat frame, double time_stamp
 		score_surprise = 0;
 	}
 
+	if(prev_confusion < 0)
+	{
+		prev_confusion = score_confusion;
+	}else
+	{
+		score_confusion = alpha * prev_confusion + (1-alpha) * score_confusion;
+		prev_confusion = score_confusion;
+	}
+	if(prev_surprise < 0)
+	{
+		prev_surprise = score_surprise;
+	}else
+	{
+		score_surprise = alpha * prev_surprise + (1-alpha)* score_surprise;
+		prev_surprise = score_surprise;
+	}
+
 	if (score_confusion >= threshold_confusion)
 	{
 		decision_confusion = 1.0;
@@ -134,13 +151,12 @@ double InmindEmotionDetector::get_confusion_thres(string root, string thres_path
 		if (!exists(loc))
 		{
 			cout << "Can't find threshold files, exiting" << endl;
-		}
-		else
-		{
-			std::ifstream ifile(data_path, std::ios::in);
-			ifile >> threshold;
+			return threshold;
 		}
 	}
+	std::ifstream ifile(data_path, std::ios::in);
+	ifile >> threshold;
+
 	return threshold;
 }
 double InmindEmotionDetector::get_surprise_thres(string root, string thres_path)
@@ -158,12 +174,11 @@ double InmindEmotionDetector::get_surprise_thres(string root, string thres_path)
 		if (!exists(loc))
 		{
 			cout << "Can't find threshold files, exiting" << endl;
-		}
-		else
-		{
-			std::ifstream ifile(data_path, std::ios::in);
-			ifile >> threshold;
+			return threshold;
 		}
 	}
+	std::ifstream ifile(data_path, std::ios::in);
+	ifile >> threshold;
+
 	return threshold;
 }
