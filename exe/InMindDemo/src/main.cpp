@@ -3,7 +3,7 @@
 * @Date:   2016-05-09T21:14:02-04:00
 * @Email:  chirag.raman@gmail.com
 * @Last modified by:   chirag
-* @Last modified time: 2016-08-11T15:41:58-04:00
+* @Last modified time: 2016-08-11T15:48:02-04:00
 * @License: Copyright (C) 2016 Multicomp Lab. All rights reserved.
 */
 
@@ -64,8 +64,8 @@ static AVFrame *frame = NULL;
 static AVFrame *frame_rgb = NULL;
 static int video_stream_index = -1;
 static InmindEmotionDetector *emotion_detector = NULL;
-static zmq::socket_t sender_socket = NULL;
-static int PORT = 5556;
+static zmq::socket_t sender_socket;
+static std::string PORT = "5556";
 
 /********
  * INITIALISATION
@@ -269,12 +269,15 @@ int setup_rgb_frame(AVFrame *&frame, uint8_t *&buffer,
               std::vector<double> emotions =
                 emotion_detector->DetectEmotion(image_mat, 0);
 
-              std::string response = "frame:" + frame->coded_picture_number +
-                                     ", confusion_raw=" + emotions[0] +
-                                     ", confusion_thresh=" + emotions[2] +
-                                     ", surprise_raw" + emotions[1] +
-                                     ", surprise_thresh" + emotions[3];
-              s_send(sender_socket, response);
+              std::stringstream response_stream;
+
+
+              response_stream << "frame:" << frame->coded_picture_number
+                              << ", confusion_raw=" << emotions[0]
+                              << ", confusion_thresh=" << emotions[2]
+                              << ", surprise_raw" << emotions[1]
+                              << ", surprise_thresh" << emotions[3];
+              s_send(sender_socket, response_stream.str());
          }
      }
 
