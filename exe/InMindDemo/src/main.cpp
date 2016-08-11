@@ -3,7 +3,7 @@
 * @Date:   2016-05-09T21:14:02-04:00
 * @Email:  chirag.raman@gmail.com
 * @Last modified by:   chirag
-* @Last modified time: 2016-08-11T15:32:58-04:00
+* @Last modified time: 2016-08-11T15:41:58-04:00
 * @License: Copyright (C) 2016 Multicomp Lab. All rights reserved.
 */
 
@@ -268,6 +268,13 @@ int setup_rgb_frame(AVFrame *&frame, uint8_t *&buffer,
 
               std::vector<double> emotions =
                 emotion_detector->DetectEmotion(image_mat, 0);
+
+              std::string response = "frame:" + frame->coded_picture_number +
+                                     ", confusion_raw=" + emotions[0] +
+                                     ", confusion_thresh=" + emotions[2] +
+                                     ", surprise_raw" + emotions[1] +
+                                     ", surprise_thresh" + emotions[3];
+              s_send(sender_socket, response);
          }
      }
 
