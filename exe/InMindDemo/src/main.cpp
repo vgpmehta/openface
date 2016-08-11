@@ -3,7 +3,7 @@
 * @Date:   2016-05-09T21:14:02-04:00
 * @Email:  chirag.raman@gmail.com
 * @Last modified by:   chirag
-* @Last modified time: 2016-08-11T13:25:16-04:00
+* @Last modified time: 2016-08-11T14:54:19-04:00
 * @License: Copyright (C) 2016 Multicomp Lab. All rights reserved.
 */
 
@@ -25,7 +25,7 @@ using namespace InmindDemo;
 
 // Use this to run from the camera with a device id like "/dev/video0" instead
 // of grabbing from an RTSP stream
-#define CAMERA_TEST 0
+#define CAMERA_TEST (0)
 
 /********
  * HELPERS
@@ -113,7 +113,7 @@ void open_input(AVInputFormat *&input_format, AVDictionary *&options,
     input_format = NULL;
     options = NULL;
 
-#ifdef CAMERA_TEST
+#if( CAMERA_TEST )
 
     //Input Format
     init_input_format(input_format);
