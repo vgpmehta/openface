@@ -78,4 +78,8 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 # build target
 add_executable( ${PROJECT_NAME} ${SOURCE_FILES} )
 target_link_libraries( ${PROJECT_NAME} InmindEmotionDetector )
-target_link_libraries( ${PROJECT_NAME} ${FFMPEG_LIBRARIES} ${OpenCV_LIBS} ${ZMQ_LIBRARIES} )
+target_link_libraries( ${PROJECT_NAME} LandmarkDetector )
+target_link_libraries( ${PROJECT_NAME} FaceAnalyser )
+target_link_libraries( ${PROJECT_NAME} dlib )
+
+target_link_libraries( ${PROJECT_NAME} ${FFMPEG_LIBRARIES} ${OpenCV_LIBS} ${ZMQ_LIBRARIES} ${Boost_LIBRARIES} ${TBB_LIBRARIES} )
