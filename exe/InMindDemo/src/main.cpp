@@ -3,7 +3,7 @@
 * @Date:   2016-05-09T21:14:02-04:00
 * @Email:  chirag.raman@gmail.com
 * @Last modified by:   chirag
-* @Last modified time: 2016-08-10T21:42:17-04:00
+* @Last modified time: 2016-08-11T12:54:28-04:00
 * @License: Copyright (C) 2016 Multicomp Lab. All rights reserved.
 */
 
@@ -67,13 +67,13 @@ static InmindEmotionDetector *emotion_detector = NULL;
  * INITIALISATION
  *******/
 
-void initialize() {
+void initialize(std::string executable_path) {
     av_register_all();
     avcodec_register_all();
     avformat_network_init();
     avdevice_register_all();
 
-    emotion_detector = new InmindEmotionDetector();
+    emotion_detector = new InmindEmotionDetector(executable_path);
 }
 
 void init_format_context(AVFormatContext *&context) {
@@ -360,6 +360,9 @@ int main(int argc, const char *argv[]) {
         exit(1);
     }
 
+    //Get executable name
+    std::string executable_name(argv[0]);
+
     //Declare local variables
     int ret = 0;
     char const *device_name = argv[1];
@@ -371,7 +374,7 @@ int main(int argc, const char *argv[]) {
     struct SwsContext *sws_context = NULL;
     AVPixelFormat destination_format = AV_PIX_FMT_BGR24;
 
-    initialize();
+    initialize(executable_name);
     open_input(input_format, options, format_context, device_name);
     retrieve_stream_info(format_context);
 
