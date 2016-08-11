@@ -3,7 +3,7 @@
 * @Date:   2016-05-09T21:14:02-04:00
 * @Email:  chirag.raman@gmail.com
 * @Last modified by:   chirag
-* @Last modified time: 2016-08-11T12:54:28-04:00
+* @Last modified time: 2016-08-11T13:25:16-04:00
 * @License: Copyright (C) 2016 Multicomp Lab. All rights reserved.
 */
 
@@ -263,7 +263,7 @@ int setup_rgb_frame(AVFrame *&frame, uint8_t *&buffer,
                                 frame_rgb->data[0]);
 
               std::vector<double> emotions =
-                emotion_detector.DetectEmotion(image_mat, 0);
+                emotion_detector->DetectEmotion(image_mat, 0);
          }
      }
 
