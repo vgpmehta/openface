@@ -3,7 +3,7 @@
 * @Date:   2016-05-09T21:14:02-04:00
 * @Email:  chirag.raman@gmail.com
 * @Last modified by:   chirag
-* @Last modified time: 2016-08-11T14:54:19-04:00
+* @Last modified time: 2016-08-11T15:32:58-04:00
 * @License: Copyright (C) 2016 Multicomp Lab. All rights reserved.
 */
 
@@ -20,6 +20,8 @@ extern "C" {
 
 #include "opencv2/imgproc/imgproc.hpp"
 #include <InmindEmotionDetector.h>
+
+#include <zmq.hpp>
 
 using namespace InmindDemo;
 
@@ -62,6 +64,8 @@ static AVFrame *frame = NULL;
 static AVFrame *frame_rgb = NULL;
 static int video_stream_index = -1;
 static InmindEmotionDetector *emotion_detector = NULL;
+static zmq::socket_t sender_socket = NULL;
+static int PORT = 5556;
 
 /********
  * INITIALISATION
@@ -374,7 +378,16 @@ int main(int argc, const char *argv[]) {
     struct SwsContext *sws_context = NULL;
     AVPixelFormat destination_format = AV_PIX_FMT_BGR24;
 
+    //Initialize
     initialize(executable_name);
+
+    //Setup ZMQ
+    zmq::context_t context(1);
+    sender_socket = zmq::socket_t(context, ZMQ_PAIR);
+    std::string address = "tcp://*:" + PORT;
+    sender_socket.bind(address);
+
+    //Start reading stream
     open_input(input_format, options, format_context, device_name);
     retrieve_stream_info(format_context);
 
