@@ -31,6 +31,8 @@ endif()
 # add include path, and any additional paths, for the project
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include )
 include_directories(../../lib/local/InmindEmotionDetector/include)
+include_directories(../../lib/local/LandmarkDetector/include)
+include_directories(../../lib/local/FaceAnalyser/include)
 
 # find dependency packages
 find_package( FFmpeg COMPONENTS AVCODEC AVFORMAT AVUTIL AVDEVICE  SWSCALE REQUIRED )
