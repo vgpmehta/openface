@@ -3,7 +3,7 @@
 * @Date:   2016-05-09T21:14:02-04:00
 * @Email:  chirag.raman@gmail.com
 * @Last modified by:   chirag
-* @Last modified time: 2016-08-11T15:48:02-04:00
+* @Last modified time: 2016-08-11T16:46:35-04:00
 * @License: Copyright (C) 2016 Multicomp Lab. All rights reserved.
 */
 
@@ -64,7 +64,6 @@ static AVFrame *frame = NULL;
 static AVFrame *frame_rgb = NULL;
 static int video_stream_index = -1;
 static InmindEmotionDetector *emotion_detector = NULL;
-static zmq::socket_t sender_socket;
 static std::string PORT = "5556";
 
 /********
@@ -228,7 +227,8 @@ int setup_rgb_frame(AVFrame *&frame, uint8_t *&buffer,
                    int *got_frame,
                    int *video_frame_count,
                    int height,
-                   int cached){
+                   int cached,
+                   zmq::socket_t &sender_socket){
      int ret = 0;
      int decoded = packet.size;
 
@@ -277,7 +277,14 @@ int setup_rgb_frame(AVFrame *&frame, uint8_t *&buffer,
                               << ", confusion_thresh=" << emotions[2]
                               << ", surprise_raw" << emotions[1]
                               << ", surprise_thresh" << emotions[3];
-              s_send(sender_socket, response_stream.str());
+
+              std::string response_string = response_stream.str();
+
+              zmq::message_t response(response_string.size());
+              memcpy(response.data(), response_string.data(),
+                     response_string.size());
+
+              sender_socket.send(response);
          }
      }
 
@@ -296,7 +303,7 @@ int setup_rgb_frame(AVFrame *&frame, uint8_t *&buffer,
 
 int process_frames(AVFormatContext *context,
                    SwsContext *&sws_context,
-                   int height) {
+                   int height, zmq::socket_t &sender_socket) {
     int ret = 0;
     int got_frame;
     int video_frame_count = 0;
@@ -322,7 +329,8 @@ int process_frames(AVFormatContext *context,
         orig_packet = packet;
         do {
             ret = decode_packet(packet, sws_context,
-                                &got_frame, &video_frame_count, height, 0);
+                                &got_frame, &video_frame_count, height, 0,
+                                sender_socket);
             if (ret < 0) {
                 break;
             }
@@ -337,7 +345,7 @@ int process_frames(AVFormatContext *context,
     packet.size = 0;
     do {
         decode_packet(packet, sws_context,
-                      &got_frame, &video_frame_count, height, 1);
+                      &got_frame, &video_frame_count, height, 1, sender_socket);
     } while (got_frame);
 
     av_log(0, AV_LOG_INFO, "Demuxing succeeded\n");
@@ -393,7 +401,7 @@ int main(int argc, const char *argv[]) {
 
     //Setup ZMQ
     zmq::context_t context(1);
-    sender_socket = zmq::socket_t(context, ZMQ_PAIR);
+    zmq::socket_t sender_socket(context, ZMQ_PAIR);
     std::string address = "tcp://*:" + PORT;
     sender_socket.bind(address);
 
@@ -447,7 +455,7 @@ int main(int argc, const char *argv[]) {
 
     //Start processing frames
     ret = process_frames(format_context, sws_context,
-                         video_decode_context->height);
+                         video_decode_context->height, sender_socket);
 
     return ret < 0;
 }
