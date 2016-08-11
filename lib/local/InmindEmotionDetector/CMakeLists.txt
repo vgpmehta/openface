@@ -1,5 +1,11 @@
 set(CMAKE_CXX_STANDARD 11)
 
+#TBB library
+include_directories(${TBB_ROOT_DIR}/include)
+
+include_directories(${BOOST_INCLUDE_DIR})
+
+
 set(SOURCE
     src/EmotionDetector.cpp
     src/InmindEmotionDetector.cpp
