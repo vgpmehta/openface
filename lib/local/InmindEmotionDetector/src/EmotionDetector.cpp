@@ -77,7 +77,7 @@ int EmotionDetector::initialize_params(vector<string> &arguments)
 			return 0;
 		}
 	}
-
+	return 1;
 }
 
 // if optical centers are not defined just use center of image
