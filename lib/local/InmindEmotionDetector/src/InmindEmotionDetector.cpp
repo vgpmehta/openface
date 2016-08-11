@@ -11,10 +11,10 @@ InmindEmotionDetector::InmindEmotionDetector(string s):root_path(path(s).parent_
 	det_parameters.track_gaze = true;
 	det_parameters.quiet_mode = true;
 
-	string conf_thres_path = "configure/confusion_threshold.txt";
+	string conf_thres_path = "emotion_models/confusion_threshold.txt";
 	threshold_confusion = get_confusion_thres(arguments[0], conf_thres_path);
 	cout << "Load Confusion Threshold: " << threshold_confusion << endl;
-	string surp_thres_path = "configure/surprise_threshold.txt";
+	string surp_thres_path = "emotion_models/surprise_threshold.txt";
 	threshold_surprise = get_surprise_thres(arguments[0], surp_thres_path);
 	cout << "Load Surprise Threshold: " << threshold_surprise << endl;
 
