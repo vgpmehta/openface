@@ -35,7 +35,6 @@ include_directories(../../lib/local/LandmarkDetector/include)
 include_directories(../../lib/local/FaceAnalyser/include)
 
 # find dependency packages
-
 # Ffmpeg
 find_package( FFmpeg COMPONENTS AVCODEC AVFORMAT AVUTIL AVDEVICE  SWSCALE REQUIRED )
 
@@ -57,6 +56,14 @@ endif()
 #OpenCV
 find_package( OpenCV REQUIRED )
 
+#ZMQ
+find_package( ZMQ REQUIRED )
+if(ZMQ_FOUND AND ZMQ_LIBRARIES)
+    message( "ZMQ_LIBRARIES = ${ZMQ_LIBRARIES}" )
+else()
+    message( FATAL_ERROR "ZMQ not found" )
+endif()
+
 # get all *.cpp files from src to build target
 file(GLOB SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*${SOURCE_EXT_PATTERN})
 source_group("Source Files" FILES ${SOURCE_FILES})
@@ -71,4 +78,4 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 # build target
 add_executable( ${PROJECT_NAME} ${SOURCE_FILES} )
 target_link_libraries( ${PROJECT_NAME} InmindEmotionDetector )
-target_link_libraries( ${PROJECT_NAME} ${FFMPEG_LIBRARIES} ${OpenCV_LIBS} )
+target_link_libraries( ${PROJECT_NAME} ${FFMPEG_LIBRARIES} ${OpenCV_LIBS} ${ZMQ_LIBRARIES} )
