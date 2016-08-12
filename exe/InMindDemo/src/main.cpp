@@ -3,7 +3,7 @@
 * @Date:   2016-05-09T21:14:02-04:00
 * @Email:  chirag.raman@gmail.com
 * @Last modified by:   chirag
-* @Last modified time: 2016-08-12T17:24:16-04:00
+* @Last modified time: 2016-08-12T17:26:20-04:00
 * @License: Copyright (C) 2016 Multicomp Lab. All rights reserved.
 */
 
@@ -34,6 +34,9 @@ using namespace InmindDemo;
 // Inmind sends pictures sideways over rtsp. This flag is used for correcting
 // the orientation of decoded images
 #define INMIND_RTSP_CORRECTION (1)
+
+// Used for drawing the decoded image to screen
+#define DISPLAY_FRAME (1)
 
 /********
  * HELPERS
@@ -271,8 +274,10 @@ int setup_rgb_frame(AVFrame *&frame, uint8_t *&buffer,
              cv::transpose(image_mat, image_mat);
              cv::flip(image_mat, image_mat, 0);
 #endif
+#if( DISPLAY_FRAME )
              cv::imshow("RTSP image",image_mat);
              cv::waitKey(1);
+#endif
              std::vector<double> emotions =
                 emotion_detector->DetectEmotion(image_mat, 0);
 
