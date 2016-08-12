@@ -276,8 +276,8 @@ int setup_rgb_frame(AVFrame *&frame, uint8_t *&buffer,
               response_stream << "frame:" << frame->coded_picture_number
                               << ", confusion_raw=" << emotions[0]
                               << ", confusion_thresh=" << emotions[2]
-                              << ", surprise_raw" << emotions[1]
-                              << ", surprise_thresh" << emotions[3];
+                              << ", surprise_raw=" << emotions[1]
+                              << ", surprise_thresh=" << emotions[3];
 
               std::string response_string = response_stream.str();
 
