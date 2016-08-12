@@ -3,7 +3,7 @@
 * @Date:   2016-05-09T21:14:02-04:00
 * @Email:  chirag.raman@gmail.com
 * @Last modified by:   chirag
-* @Last modified time: 2016-08-12T16:39:13-04:00
+* @Last modified time: 2016-08-12T17:24:16-04:00
 * @License: Copyright (C) 2016 Multicomp Lab. All rights reserved.
 */
 
@@ -20,6 +20,7 @@ extern "C" {
 
 #include <zmq.hpp>
 #include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
 
 #include <InmindEmotionDetector.h>
 
@@ -29,6 +30,10 @@ using namespace InmindDemo;
 // Use this to run from the camera with a device id like "/dev/video0" instead
 // of grabbing from an RTSP stream
 #define CAMERA_TEST (0)
+
+// Inmind sends pictures sideways over rtsp. This flag is used for correcting
+// the orientation of decoded images
+#define INMIND_RTSP_CORRECTION (1)
 
 /********
  * HELPERS
@@ -262,7 +267,12 @@ int setup_rgb_frame(AVFrame *&frame, uint8_t *&buffer,
 
              cv::Mat image_mat(frame->height, frame->width, CV_8UC3,
                                frame_rgb->data[0]);
-
+#if( INMIND_RTSP_CORRECTION )
+             cv::transpose(image_mat, image_mat);
+             cv::flip(image_mat, image_mat, 0);
+#endif
+             cv::imshow("RTSP image",image_mat);
+             cv::waitKey(1);
              std::vector<double> emotions =
                 emotion_detector->DetectEmotion(image_mat, 0);
 
