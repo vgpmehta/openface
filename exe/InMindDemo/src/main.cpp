@@ -3,7 +3,7 @@
 * @Date:   2016-05-09T21:14:02-04:00
 * @Email:  chirag.raman@gmail.com
 * @Last modified by:   chirag
-* @Last modified time: 2016-08-11T16:46:35-04:00
+* @Last modified time: 2016-08-12T12:30:49-04:00
 * @License: Copyright (C) 2016 Multicomp Lab. All rights reserved.
 */
 
@@ -28,7 +28,7 @@ using namespace InmindDemo;
 
 // Use this to run from the camera with a device id like "/dev/video0" instead
 // of grabbing from an RTSP stream
-#define CAMERA_TEST (0)
+#define CAMERA_TEST (1)
 
 /********
  * HELPERS
@@ -251,41 +251,38 @@ int setup_rgb_frame(AVFrame *&frame, uint8_t *&buffer,
 
          if (*got_frame) {
              double pts = av_frame_get_best_effort_timestamp(frame);
-             std::cout << "Video frame " << ( cached ? "(cached)" : "" )
-                       << " n:" << (*video_frame_count)++
-                       << " coded:" <<  frame->coded_picture_number
-                       << " pts:" << pts << std::endl;
-              sws_scale(
-                  sws_context,
-                  ((AVPicture*)frame)->data,
-                  ((AVPicture*)frame)->linesize,
-                  0,
-                  height,
-                  ((AVPicture *)frame_rgb)->data,
-                  ((AVPicture *)frame_rgb)->linesize);
+             sws_scale(
+                 sws_context,
+                 ((AVPicture*)frame)->data,
+                 ((AVPicture*)frame)->linesize,
+                 0,
+                 height,
+                 ((AVPicture *)frame_rgb)->data,
+                 ((AVPicture *)frame_rgb)->linesize);
 
-              cv::Mat image_mat(frame->height, frame->width, CV_8UC3,
-                                frame_rgb->data[0]);
+             cv::Mat image_mat(frame->height, frame->width, CV_8UC3,
+                               frame_rgb->data[0]);
 
-              std::vector<double> emotions =
+             std::vector<double> emotions =
                 emotion_detector->DetectEmotion(image_mat, 0);
 
-              std::stringstream response_stream;
+             std::stringstream response_stream;
 
 
-              response_stream << "frame:" << frame->coded_picture_number
-                              << ", confusion_raw=" << emotions[0]
-                              << ", confusion_thresh=" << emotions[2]
-                              << ", surprise_raw=" << emotions[1]
-                              << ", surprise_thresh=" << emotions[3];
+             response_stream << "frame:" << frame->coded_picture_number
+                             << ", confusion_raw=" << emotions[0]
+                             << ", confusion_thresh=" << emotions[2]
+                             << ", surprise_raw=" << emotions[1]
+                             << ", surprise_thresh=" << emotions[3];
 
-              std::string response_string = response_stream.str();
+             std::string response_string = response_stream.str();
+             std::cout << response_string << std::endl;
 
-              zmq::message_t response(response_string.size());
-              memcpy(response.data(), response_string.data(),
-                     response_string.size());
+             zmq::message_t response(response_string.size());
+             memcpy(response.data(), response_string.data(),
+                    response_string.size());
 
-              sender_socket.send(response);
+             sender_socket.send(response);
          }
      }
 
