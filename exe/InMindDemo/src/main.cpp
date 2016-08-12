@@ -18,10 +18,11 @@ extern "C" {
 #include "libswscale/swscale.h"
 }
 
+#include <zmq.hpp>
 #include "opencv2/imgproc/imgproc.hpp"
+
 #include <InmindEmotionDetector.h>
 
-#include <zmq.hpp>
 
 using namespace InmindDemo;
 
