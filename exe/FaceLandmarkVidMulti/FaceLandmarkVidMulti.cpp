@@ -63,6 +63,8 @@
 #include <fstream>
 #include <sstream>
 
+#include <tbb/tbb.h>
+
 // OpenCV includes
 #include <opencv2/videoio/videoio.hpp>  // Video write
 #include <opencv2/videoio/videoio_c.h>  // Video write
