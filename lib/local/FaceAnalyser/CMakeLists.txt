@@ -36,6 +36,7 @@ endif()
 set_property(TARGET FaceAnalyser PROPERTY VERSION ${OpenFace_VERSION})
 
 install (TARGETS FaceAnalyser
+         EXPORT OpenFaceTargets
          LIBRARY DESTINATION lib
          ARCHIVE DESTINATION lib)
 

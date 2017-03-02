@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 2.8)
 project (OpenFace)
 
+cmake_policy(SET CMP0028 NEW) # Double colon in target name means ALIAS or IMPORTED target
+
 set(CPACK_PACKAGE_VERSION_MAJOR "0")
 set(CPACK_PACKAGE_VERSION_MINOR "2")
 set(CPACK_PACKAGE_VERSION_PATCH "4")
@@ -14,13 +16,12 @@ set(OPENFACE_SHARE_DIR share/OpenFace)
 set(SHARE_DIR "${CMAKE_INSTALL_PREFIX}/${OPENFACE_SHARE_DIR}")
 add_definitions(-DCONFIG_DIR="${SHARE_DIR}")
 
-find_package( OpenCV REQUIRED )
+find_package( OpenCV CONFIG REQUIRED COMPONENTS core imgproc calib3d highgui objdetect)
 
 MESSAGE("OpenCV information:") 
 MESSAGE("  OpenCV_INCLUDE_DIRS: ${OpenCV_INCLUDE_DIRS}") 
 MESSAGE("  OpenCV_LIBRARIES: ${OpenCV_LIBRARIES}") 
 MESSAGE("  OpenCV_LIBRARY_DIRS: ${OpenCV_LIBRARY_DIRS}") 
-include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 find_package( Boost 1.5.9 REQUIRED COMPONENTS filesystem system)
 MESSAGE("Boost information:") 
@@ -30,7 +31,7 @@ MESSAGE("  Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}")
 
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS}/boost)
-LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})	
+LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
 find_package(TBB REQUIRED)
 
@@ -169,7 +170,7 @@ else()
 endif()
 
 # dlib
-find_package(dlib)
+find_package(dlib 18.18 CONFIG)
 
 if(${dlib_FOUND})
     message("dlib information:") 
@@ -189,6 +190,36 @@ endif()
 add_subdirectory(lib/local/LandmarkDetector)
 # Facial Expression analysis library
 add_subdirectory(lib/local/FaceAnalyser)
+
+# Prepare OpenFaceConfig.cmake & co
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/OpenFace/OpenFaceConfigVersion.cmake"
+    VERSION ${OpenFace_VERSION}
+    COMPATIBILITY AnyNewerVersion)
+
+export(EXPORT OpenFaceTargets
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/OpenFace/OpenFaceTargets.cmake"
+  NAMESPACE OpenFace::
+)
+configure_file(cmake/OpenFaceConfig.cmake
+  "${CMAKE_CURRENT_BINARY_DIR}/OpenFace/OpenFaceConfig.cmake"
+  COPYONLY
+)
+
+install(EXPORT OpenFaceTargets
+  FILE OpenFaceTargets.cmake
+  NAMESPACE OpenFace::
+  DESTINATION lib/cmake/OpenFace
+)
+
+install(FILES
+    cmake/OpenFaceConfig.cmake
+    "${CMAKE_CURRENT_BINARY_DIR}/OpenFace/OpenFaceConfigVersion.cmake"
+    DESTINATION lib/cmake/OpenFace
+)
+
+
 # executables
 add_subdirectory(exe/FaceLandmarkImg)
 add_subdirectory(exe/FaceLandmarkVid)

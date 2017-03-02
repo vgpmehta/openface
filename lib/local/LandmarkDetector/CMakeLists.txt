@@ -45,6 +45,7 @@ endif()
 set_property(TARGET LandmarkDetector PROPERTY VERSION ${OpenFace_VERSION})
 
 install (TARGETS LandmarkDetector
+         EXPORT OpenFaceTargets
          LIBRARY DESTINATION lib
          ARCHIVE DESTINATION lib)
 
