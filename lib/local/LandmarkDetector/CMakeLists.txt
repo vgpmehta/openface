@@ -35,11 +35,17 @@ SET(HEADERS
 include_directories(./include)
 include_directories(${LandmarkDetector_SOURCE_DIR}/include)
 
+
 if(WIN32)
     add_library( LandmarkDetector ${SOURCE} ${HEADERS} )
 else()
     add_library( LandmarkDetector SHARED ${SOURCE} ${HEADERS} )
 endif()
 
-install (TARGETS LandmarkDetector DESTINATION lib)
+set_property(TARGET LandmarkDetector PROPERTY VERSION ${OpenFace_VERSION})
+
+install (TARGETS LandmarkDetector
+         LIBRARY DESTINATION lib
+         ARCHIVE DESTINATION lib)
+
 install (FILES ${HEADERS} DESTINATION include/OpenFace)

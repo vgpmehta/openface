@@ -33,5 +33,10 @@ else()
     add_library( FaceAnalyser SHARED ${SOURCE} ${HEADERS} )
 endif()
 
-install (TARGETS FaceAnalyser DESTINATION lib)
+set_property(TARGET FaceAnalyser PROPERTY VERSION ${OpenFace_VERSION})
+
+install (TARGETS FaceAnalyser
+         LIBRARY DESTINATION lib
+         ARCHIVE DESTINATION lib)
+
 install (FILES ${HEADERS} DESTINATION include/OpenFace)
