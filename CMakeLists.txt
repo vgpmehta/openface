@@ -156,18 +156,29 @@ endif ()
 
 # Boost
 if(WIN32)
-	include_directories(lib/3rdParty/boost)
-	include_directories(lib/3rdParty/boost/boost)
-	link_directories( ${PROJECT_SOURCE_DIR}/lib/3rdParty/boost/lib )
+    include_directories(lib/3rdParty/boost)
+    include_directories(lib/3rdParty/boost/boost)
+    link_directories( ${PROJECT_SOURCE_DIR}/lib/3rdParty/boost/lib )
 else()
-	INCLUDE_DIRECTORIES(${BOOST_INCLUDE_DIR})
+    include_directories(${BOOST_INCLUDE_DIR})
 endif()
 
 # dlib
-include_directories(lib/3rdParty/dlib/include)
+find_package(dlib)
 
-# dlib library
-add_subdirectory(lib/3rdParty/dlib)
+if(${dlib_FOUND})
+    message("dlib information:") 
+    message("  dlib version: ${dlib_VERSION}") 
+    message("  dlib_INCLUDE_DIRS: ${dlib_INCLUDE_DIRS}") 
+
+    include_directories(${dlib_INCLUDE_DIRS})
+else()
+    message(WARNING "dlib not found in the system. We will compile it.") 
+    include_directories(lib/3rdParty/dlib/include)
+
+    # dlib library
+    add_subdirectory(lib/3rdParty/dlib)
+endif()
 
 # LandmarkDetector library
 add_subdirectory(lib/local/LandmarkDetector)

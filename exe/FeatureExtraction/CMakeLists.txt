@@ -11,7 +11,12 @@ include_directories(../../lib/local/FaceAnalyser/include)
 
 target_link_libraries(FeatureExtraction LandmarkDetector)
 target_link_libraries(FeatureExtraction FaceAnalyser)
-target_link_libraries(FeatureExtraction dlib)
+
+if(${dlib_FOUND})
+    target_link_libraries(FeatureExtraction ${dlib_LIBRARIES})
+else()
+    target_link_libraries(FeatureExtraction dlib)
+endif()
 
 target_link_libraries(FeatureExtraction ${OpenCV_LIBS} ${Boost_LIBRARIES} ${TBB_LIBRARIES})
 

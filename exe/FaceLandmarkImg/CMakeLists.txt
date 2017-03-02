@@ -10,7 +10,12 @@ include_directories(../../lib/local/FaceAnalyser/include)
 add_executable(FaceLandmarkImg FaceLandmarkImg.cpp)
 target_link_libraries(FaceLandmarkImg LandmarkDetector)
 target_link_libraries(FaceLandmarkImg FaceAnalyser)
-target_link_libraries(FaceLandmarkImg dlib)
+
+if(${dlib_FOUND})
+    target_link_libraries(FaceLandmarkImg ${dlib_LIBRARIES})
+else()
+    target_link_libraries(FaceLandmarkImg dlib)
+endif()
 
 target_link_libraries(FaceLandmarkImg ${OpenCV_LIBS} ${Boost_LIBRARIES} ${TBB_LIBRARIES})
 
