@@ -251,6 +251,9 @@ int main (int argc, char **argv)
 
 	// Some initial parameters that can be overriden from command line	
 	vector<string> input_files, depth_directories, output_files, tracked_videos_output;
+
+	// By default try webcam 0
+	int device = 0;
 	
 	LandmarkDetector::FaceModelParameters det_parameters(arguments);
 	// Always track gaze in feature extraction
@@ -286,9 +289,9 @@ int main (int argc, char **argv)
 
 	// Grab camera parameters, if they are not defined (approximate values will be used)
 	float fx = 0, fy = 0, cx = 0, cy = 0;
-	int d = 0;
+
 	// Get camera parameters
-	LandmarkDetector::get_camera_params(d, fx, fy, cx, cy, arguments);    
+	LandmarkDetector::get_camera_params(device, fx, fy, cx, cy, arguments);    
 	
 	// If cx (optical axis centre) is undefined will use the image size/2 as an estimate
 	bool cx_undefined = false;
@@ -428,6 +431,25 @@ int main (int argc, char **argv)
 				INFO_STREAM( "Attempting to read from file: " << current_file );
 				video_capture = cv::VideoCapture( current_file );
 				total_frames = (int)video_capture.get(CV_CAP_PROP_FRAME_COUNT);
+				fps_vid_in = video_capture.get(CV_CAP_PROP_FPS);
+
+				// Check if fps is nan or less than 0
+				if (fps_vid_in != fps_vid_in || fps_vid_in <= 0)
+				{
+					INFO_STREAM("FPS of the video file cannot be determined, assuming 30");
+					fps_vid_in = 30;
+				}
+			}
+			//If no file specified, we want to read from a webcam
+			else
+			{
+				INFO_STREAM( "Attempting to capture from device: " << device );
+				video_capture = cv::VideoCapture( device );
+
+				// Read a first frame often empty in camera
+				cv::Mat captured_image;
+				video_capture >> captured_image;
+
 				fps_vid_in = video_capture.get(CV_CAP_PROP_FPS);
 
 				// Check if fps is nan or less than 0
