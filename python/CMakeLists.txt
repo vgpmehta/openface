@@ -16,7 +16,7 @@ include_directories(${LandmarkDetector_SOURCE_DIR}/include)
 include_directories(../lib/local/LandmarkDetector/include)
 include_directories(../lib/local/FaceAnalyser/include)  
       
-add_library(pyopenface SHARED pyopenface.cpp detector.cpp)
+add_library(pyopenface SHARED pyopenface.cpp detector.cpp tracker.cpp)
 target_link_libraries(pyopenface LandmarkDetectorShared)
 target_link_libraries(pyopenface ${OpenCV_LIBS} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} ${TBB_LIBRARIES})
 target_link_libraries(pyopenface dlib_shared)
