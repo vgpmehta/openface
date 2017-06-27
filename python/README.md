@@ -1,3 +1,8 @@
+# Testing 
+```
+  python python/test.py
+
+```
 # Depend Boost-python and numpy
 ### On Ubuntu 14.04
 ```
