@@ -7,7 +7,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 
 set(CMAKE_CONFIG_DIR etc/OpenFace)
 set(CONFIG_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_CONFIG_DIR}")
-add_definitions(-DCONFIG_DIR="${CONFIG_DIR}")
+add_definitions(-DCONFIG_DIR="${CONFIG_DIR}" -DOPENCV_TRAITS_ENABLE_DEPRECATED)
 
 find_package( BLAS REQUIRED )
 include_directories( ${BLAS_INCLUDE_DIRS} )
