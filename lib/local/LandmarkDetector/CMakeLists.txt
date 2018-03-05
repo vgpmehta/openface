@@ -1,11 +1,6 @@
 #TBB library
 include_directories(${TBB_ROOT_DIR}/include)
 
-include_directories(${BOOST_INCLUDE_DIR})
-
-#OpenBlas library
-include_directories(../../3rdParty/OpenBLAS/include)
-
 #Utilities library
 include_directories(../../local/Utilities/include)
 
@@ -38,10 +33,17 @@ SET(HEADERS
 	include/stdafx.h
 )
 
-include_directories(./include)
-include_directories(${LandmarkDetector_SOURCE_DIR}/include)
-
 add_library( LandmarkDetector ${SOURCE} ${HEADERS} )
+add_library( OpenFace::LandmarkDetector ALIAS LandmarkDetector)
+
+target_include_directories(LandmarkDetector PUBLIC ./include)
+target_include_directories(LandmarkDetector PUBLIC ../../3rdParty/dlib/include)
+target_include_directories(LandmarkDetector PRIVATE ${LandmarkDetector_SOURCE_DIR}/include)
+target_include_directories(LandmarkDetector PRIVATE ${BOOST_INCLUDE_DIR})
+target_include_directories(LandmarkDetector PRIVATE ../../3rdParty/OpenBLAS/include)
+
+target_link_libraries(LandmarkDetector INTERFACE dlib)
+target_link_libraries(LandmarkDetector INTERFACE ${OpenCV_LIBS} ${Boost_LIBRARIES} ${TBB_LIBRARIES} ${BLAS_LIBRARIES})
 
 install (TARGETS LandmarkDetector DESTINATION lib)
 install (FILES ${HEADERS} DESTINATION include/OpenFace)

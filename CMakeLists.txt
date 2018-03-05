@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.2)
 project (OpenFace)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/)
@@ -193,6 +193,15 @@ add_subdirectory(lib/local/FaceAnalyser)
 add_subdirectory(lib/local/GazeAnalyser)
 # Utilities library
 add_subdirectory(lib/local/Utilities)
+
+# export libraries for reuse
+export(TARGETS GazeAnalyser
+                FaceAnalyser
+                LandmarkDetector
+                Utilities
+                dlib NAMESPACE OpenFace
+                FILE "OpenFaceTargets.cmake")
+
 # executables
 add_subdirectory(exe/FaceLandmarkImg)
 add_subdirectory(exe/FaceLandmarkVid)

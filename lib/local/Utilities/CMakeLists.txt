@@ -1,4 +1,3 @@
-include_directories(${BOOST_INCLUDE_DIR})
 
 SET(SOURCE
     src/ImageCapture.cpp
@@ -22,10 +21,16 @@ SET(HEADERS
 	include/Visualizer.h	
 )
 
-include_directories(./include)
-include_directories(${UTILITIES_SOURCE_DIR}/include)
-
 add_library( Utilities ${SOURCE} ${HEADERS})
+add_library( OpenFace::Utilities ALIAS Utilities)
+
+target_include_directories(Utilities PUBLIC ./include)
+target_include_directories(Utilities PUBLIC ../../3rdParty/dlib/include)
+target_include_directories(Utilities PRIVATE ${UTILITIES_SOURCE_DIR}/include)
+target_include_directories(Utilities PRIVATE ${BOOST_INCLUDE_DIR})
+
+target_link_libraries(Utilities INTERFACE dlib)
+target_link_libraries(Utilities INTERFACE ${OpenCV_LIBS} ${Boost_LIBRARIES} ${TBB_LIBRARIES} ${BLAS_LIBRARIES})
 
 install (TARGETS Utilities DESTINATION lib)
 install (FILES ${HEADERS} DESTINATION include/OpenFace)

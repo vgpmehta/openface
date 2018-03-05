@@ -1,11 +1,5 @@
 #TBB library
 include_directories(${TBB_ROOT_DIR}/include)
-include_directories(${BLAS_ROOT_DIR})
-
-include_directories(${BOOST_INCLUDE_DIR})
-
-#OpenBlas library
-include_directories(../../3rdParty/OpenBLAS/include)
 
 #LandmarkDetector library
 include_directories(../../local/LandmarkDetector/include)
@@ -37,10 +31,18 @@ SET(HEADERS
 	include/SVR_static_lin_regressors.h
 )
 
-include_directories(./include)
-include_directories(${FACEANALYSER_SOURCE_DIR}/include)
-
 add_library( FaceAnalyser ${SOURCE} ${HEADERS})
+add_library( OpenFace::FaceAnalyser ALIAS FaceAnalyser)
+
+target_include_directories(FaceAnalyser PUBLIC ./include)
+target_include_directories(FaceAnalyser PUBLIC ../../3rdParty/dlib/include)
+target_include_directories(FaceAnalyser PRIVATE ../../3rdParty/OpenBLAS/include)
+target_include_directories(FaceAnalyser PRIVATE ${FACEANALYSER_SOURCE_DIR}/include)
+target_include_directories(FaceAnalyser PRIVATE ${BLAS_ROOT_DIR})
+target_include_directories(FaceAnalyser PRIVATE ${BOOST_INCLUDE_DIR})
+
+target_link_libraries(FaceAnalyser INTERFACE dlib)
+target_link_libraries(FaceAnalyser INTERFACE ${OpenCV_LIBS} ${Boost_LIBRARIES} ${TBB_LIBRARIES} ${BLAS_LIBRARIES})
 
 install (TARGETS FaceAnalyser DESTINATION lib)
 install (FILES ${HEADERS} DESTINATION include/OpenFace)
