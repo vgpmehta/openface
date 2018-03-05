@@ -42,6 +42,11 @@ target_include_directories(LandmarkDetector PRIVATE ${LandmarkDetector_SOURCE_DI
 target_include_directories(LandmarkDetector PRIVATE ${BOOST_INCLUDE_DIR})
 target_include_directories(LandmarkDetector PRIVATE ../../3rdParty/OpenBLAS/include)
 
+# suppress auto_ptr deprecation warnings
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    target_compile_options(LandmarkDetector PUBLIC "-Wno-deprecated-declarations")
+endif()
+
 target_link_libraries(LandmarkDetector INTERFACE dlib)
 target_link_libraries(LandmarkDetector INTERFACE ${OpenCV_LIBS} ${Boost_LIBRARIES} ${TBB_LIBRARIES} ${BLAS_LIBRARIES})
 
