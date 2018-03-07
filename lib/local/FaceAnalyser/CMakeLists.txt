@@ -34,15 +34,29 @@ SET(HEADERS
 add_library( FaceAnalyser ${SOURCE} ${HEADERS})
 add_library( OpenFace::FaceAnalyser ALIAS FaceAnalyser)
 
-target_include_directories(FaceAnalyser PUBLIC ./include)
-target_include_directories(FaceAnalyser PUBLIC ../../3rdParty/dlib/include)
-target_include_directories(FaceAnalyser PRIVATE ../../3rdParty/OpenBLAS/include)
+target_include_directories(FaceAnalyser PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include/OpenFace>)
+
 target_include_directories(FaceAnalyser PRIVATE ${FACEANALYSER_SOURCE_DIR}/include)
-target_include_directories(FaceAnalyser PRIVATE ${BLAS_ROOT_DIR})
-target_include_directories(FaceAnalyser PRIVATE ${BOOST_INCLUDE_DIR})
+target_include_directories(FaceAnalyser PUBLIC ${Boost_INCLUDE_DIRS})
+target_include_directories(FaceAnalyser PUBLIC ${Boost_INCLUDE_DIRS}/boost)
 
-target_link_libraries(FaceAnalyser INTERFACE dlib)
-target_link_libraries(FaceAnalyser INTERFACE ${OpenCV_LIBS} ${Boost_LIBRARIES} ${TBB_LIBRARIES} ${BLAS_LIBRARIES})
+target_link_libraries(FaceAnalyser INTERFACE ${OpenCV_LIBS} ${Boost_LIBRARIES} ${BLAS_LIBRARIES})
 
-install (TARGETS FaceAnalyser DESTINATION lib)
+if(${BLAS_FOUND})
+    target_include_directories(FaceAnalyser PRIVATE ${BLAS_ROOT_DIR})
+else()
+    target_include_directories(FaceAnalyser PRIVATE ../../3rdParty/OpenBLAS/include)
+endif()
+
+if(${dlib_FOUND})
+    target_link_libraries(FaceAnalyser INTERFACE ${dlib_LIBRARIES})
+    target_include_directories(FaceAnalyser PUBLIC ${dlib_INCLUDE_DIRS})
+else()
+    target_link_libraries(FaceAnalyser INTERFACE dlib)
+    target_include_directories(FaceAnalyser PRIVATE ../../3rdParty/dlib/include)
+endif()
+
+install (TARGETS FaceAnalyser EXPORT OpenFaceTargets LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 install (FILES ${HEADERS} DESTINATION include/OpenFace)
