@@ -26,8 +26,13 @@ MESSAGE("  Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
 MESSAGE("  Boost_LIBRARIES: ${Boost_LIBRARIES}") 
 MESSAGE("  Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}") 
 
-find_package(TBB REQUIRED)
+find_package( TBB CONFIG )
+if (NOT ${TBB_FOUND})
+    find_package( TBB REQUIRED )
+endif()
+
 MESSAGE("TBB information:")
+MESSAGE("  TBB_VERSION: ${TBB_VERSION}")
 MESSAGE("  TBB_INCLUDE_DIRS: ${TBB_INCLUDE_DIRS}")
 MESSAGE("  TBB_LIBRARIES: ${TBB_LIBRARIES}")
 
@@ -212,26 +217,25 @@ add_subdirectory(lib/local/Utilities)
 include(CMakePackageConfigHelpers)
 
 set(LIB_INSTALL_DIR lib)
+set(CONFIG_DEST_DIR ${LIB_INSTALL_DIR}/cmake/OpenFace/)
 set(OpenFace_LIBRARIES OpenFace::GazeAnalyser OpenFace::FaceAnalyser OpenFace::LandmarkDetector OpenFace::Utilities)
 
 # export targets [build tree]
 export(EXPORT OpenFaceTargets
     NAMESPACE OpenFace::
-    FILE "${CMAKE_CURRENT_BINARY_DIR}/OpenFaceTargets.cmake")
+    FILE "${CMAKE_CURRENT_BINARY_DIR}/${CONFIG_DEST_DIR}/OpenFaceTargets.cmake")
 
 # write package version file
 write_basic_package_version_file(
-    "${CMAKE_CURRENT_BINARY_DIR}/OpenFaceConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/${CONFIG_DEST_DIR}/OpenFaceConfigVersion.cmake"
     COMPATIBILITY AnyNewerVersion)
 
 # define [build tree] bindir relative include dir
 foreach(lib ${OpenFace_LIBRARIES})
   if(TARGET ${lib})
-    get_target_property(incdirs ${lib} "INTERFACE_INCLUDE_DIRECTORIES")
-    foreach(incdir ${incdirs})
-      file(RELATIVE_PATH rel_incdir ${CMAKE_CURRENT_BINARY_DIR} ${incdir})
-      list(APPEND OPENFACE_INCLUDE_DIRS ${rel_incdir})
-    endforeach()
+    get_target_property(libname ${lib} "NAME")
+    file(RELATIVE_PATH rel_incdir ${CMAKE_CURRENT_BINARY_DIR} "${CMAKE_CURRENT_SOURCE_DIR}/lib/local/${libname}/include")
+    list(APPEND OPENFACE_INCLUDE_DIRS ${rel_incdir})
   endif()
 endforeach()
 list(REMOVE_DUPLICATES OPENFACE_INCLUDE_DIRS)
@@ -240,8 +244,8 @@ list(REMOVE_DUPLICATES OPENFACE_INCLUDE_DIRS)
 # all PATH_VARS should be relative to a ${CMAKE_CURRENT_BINARY_DIR}
 # as it's the "prefix" of our non installed package in the build tree
 configure_package_config_file(cmake/OpenFaceConfig.cmake.in
-    "${CMAKE_CURRENT_BINARY_DIR}/OpenFaceConfig.cmake"
-    INSTALL_DESTINATION ${LIB_INSTALL_DIR}/cmake/OpenFace
+    "${CMAKE_CURRENT_BINARY_DIR}/${CONFIG_DEST_DIR}/OpenFaceConfig.cmake"
+    INSTALL_DESTINATION ${CONFIG_DEST_DIR}
     PATH_VARS OPENFACE_INCLUDE_DIRS)
 
 # store current build dir in the CMake package registry
@@ -259,7 +263,7 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL "${CMAKE_SOURCE_DIR}")
     install(EXPORT OpenFaceTargets
         FILE ${CMAKE_CURRENT_BINARY_DIR}/OpenFace/OpenFaceTargets.cmake
         NAMESPACE OpenFace::
-        DESTINATION ${LIB_INSTALL_DIR}/cmake/OpenFace)
+        DESTINATION ${CONFIG_DEST_DIR})
 
     # redefine [install tree] prefix relative include dir
     set(OPENFACE_INCLUDE_DIRS "include/OpenFace")
@@ -267,14 +271,14 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL "${CMAKE_SOURCE_DIR}")
     # write package config file from template [install tree]
     configure_package_config_file(cmake/OpenFaceConfig.cmake.in
         "${CMAKE_CURRENT_BINARY_DIR}/OpenFace/OpenFaceConfig.cmake"
-        INSTALL_DESTINATION ${LIB_INSTALL_DIR}/cmake/OpenFace
+        INSTALL_DESTINATION ${CONFIG_DEST_DIR}
         PATH_VARS OPENFACE_INCLUDE_DIRS)
 
     # install package configs
     install(FILES
         "${CMAKE_CURRENT_BINARY_DIR}/OpenFace/OpenFaceConfig.cmake"
-        "${CMAKE_CURRENT_BINARY_DIR}/OpenFaceConfigVersion.cmake"
-        DESTINATION ${LIB_INSTALL_DIR}/cmake/OpenFace)
+        "${CMAKE_CURRENT_BINARY_DIR}/${CONFIG_DEST_DIR}/OpenFaceConfigVersion.cmake"
+        DESTINATION ${CONFIG_DEST_DIR})
 endif()
 
 # executables
