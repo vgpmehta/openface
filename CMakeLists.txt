@@ -261,7 +261,7 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL "${CMAKE_SOURCE_DIR}")
 
     # install exported targets [install tree]
     install(EXPORT OpenFaceTargets
-        FILE ${CMAKE_CURRENT_BINARY_DIR}/OpenFace/OpenFaceTargets.cmake
+        FILE OpenFaceTargets.cmake
         NAMESPACE OpenFace::
         DESTINATION ${CONFIG_DEST_DIR})
 
