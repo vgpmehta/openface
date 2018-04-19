@@ -111,7 +111,7 @@ foreach(file ${files})
 endforeach()
 
 # Move OpenCV classifiers
-file(GLOB files "lib/3rdParty/OpenCV3.1/classifiers/*.xml")
+file(GLOB files "lib/3rdParty/OpenCV3.4/classifiers/*.xml")
 foreach(file ${files})
 	if (MSVC)
 		file(COPY ${file} DESTINATION ${CMAKE_BINARY_DIR}/bin/Debug/classifiers)
