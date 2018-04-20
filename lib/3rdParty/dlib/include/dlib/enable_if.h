@@ -14,8 +14,8 @@
 #define DLIB_BOOST_UTILITY_ENABLE_IF_HPP
 
 
-#ifndef BOOST_UTILITY_ENABLE_IF_HPP
-#define BOOST_UTILITY_ENABLE_IF_HPP
+#ifndef BOOST_CORE_ENABLE_IF_HPP
+#define BOOST_CORE_ENABLE_IF_HPP
 
 // Even the definition of enable_if causes problems on some compilers,
 // so it's macroed out for all compilers that do not support SFINAE
