@@ -34,12 +34,6 @@ target_include_directories(Utilities PUBLIC ${Boost_INCLUDE_DIRS}/boost)
 
 target_link_libraries(Utilities INTERFACE ${OpenCV_LIBS} ${Boost_LIBRARIES} ${TBB_LIBRARIES})
 
-if(${BLAS_FOUND})
-    target_include_directories(Utilities PRIVATE ${BLAS_ROOT_DIR})
-else()
-    target_include_directories(Utilities PRIVATE ../../3rdParty/OpenBLAS/include)
-endif()
-
 if(${dlib_FOUND})
     target_link_libraries(Utilities INTERFACE ${dlib_LIBRARIES})
     target_include_directories(Utilities PUBLIC ${dlib_INCLUDE_DIRS})
