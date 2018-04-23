@@ -397,7 +397,10 @@ void CLNF::Read(string main_location)
 
 			this->hierarchical_model_names.push_back(part_name);
 
-			FaceModelParameters params;
+                        std::string root_loc = boost::filesystem::path(main_location).parent_path().string();
+                        std::vector<string> sub_arguments{root_loc};
+
+			FaceModelParameters params(sub_arguments);
 			params.validate_detections = false;
 			params.refine_hierarchical = false;
 			params.refine_parameters = false;
