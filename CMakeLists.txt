@@ -12,12 +12,17 @@ add_definitions(-DCONFIG_DIR="${CONFIG_DIR}")
 # make sure we'll use OpenBLAS only: there's a header file naming difference between different
 # implementations; so OpenFace wants cblas.h;
 set(BLA_VENDOR "OpenBLAS")
-find_package( BLAS REQUIRED )
+find_package( BLAS )
 
-MESSAGE("BLAS information:")
-MESSAGE("  BLAS Vendor: ${BLA_VENDOR}")
-MESSAGE("  BLAS_LIBRARIES: ${BLAS_LIBRARIES}")
-MESSAGE("  BLAS_ROOT_DIR: ${BLAS_ROOT_DIR}")
+if ( ${BLAS_FOUND} )
+    MESSAGE("BLAS information:")
+    MESSAGE("  BLAS Vendor: ${BLA_VENDOR}")
+    MESSAGE("  BLAS_LIBRARIES: ${BLAS_LIBRARIES}")
+    MESSAGE("  BLAS_ROOT_DIR: ${BLAS_ROOT_DIR}")
+else()
+    message(WARNING "BLAS not found in the system. Using the one vended with OpenFace.")
+    include_directories(lib/3rdParty/OpenBLAS/include)
+endif()
 
 find_package( OpenCV 3.3 REQUIRED COMPONENTS core imgproc calib3d highgui objdetect)
 MESSAGE("OpenCV information:") 
