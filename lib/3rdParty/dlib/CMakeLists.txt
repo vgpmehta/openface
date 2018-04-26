@@ -427,6 +427,10 @@ if (NOT TARGET dlib)
    else()
       remove_global_define(ENABLE_ASSERTS)
    endif()
-
+   
+# According to https://cmake.org/Bug/view.php?id=14444  install(TARGETS)
+# command flow accepts only targets created within same directory.
+         
+  install (TARGETS dlib EXPORT OpenFaceTargets LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 
 endif()
