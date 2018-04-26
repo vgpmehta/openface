@@ -14,6 +14,10 @@ add_definitions(-DCONFIG_DIR="${CONFIG_DIR}")
 set(BLA_VENDOR "OpenBLAS")
 find_package( BLAS )
 
+if ( BLAS_LIBRARIES STREQUAL "FALSE")
+	unset(BLAS_LIBRARIES)
+endif()
+
 if ( ${BLAS_FOUND} )
     MESSAGE("BLAS information:")
     MESSAGE("  BLAS Vendor: ${BLA_VENDOR}")
