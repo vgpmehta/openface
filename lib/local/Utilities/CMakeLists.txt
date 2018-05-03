@@ -39,7 +39,7 @@ if(${dlib_FOUND})
     target_include_directories(Utilities PUBLIC ${dlib_INCLUDE_DIRS})
 else()
     target_link_libraries(Utilities INTERFACE dlib)
-    target_include_directories(Utilities PRIVATE ../../3rdParty/dlib/include)
+    target_include_directories(Utilities PUBLIC ../../3rdParty/dlib/include)
 endif()
 
 install (TARGETS Utilities EXPORT OpenFaceTargets LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)

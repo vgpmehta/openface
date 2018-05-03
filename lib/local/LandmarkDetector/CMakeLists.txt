@@ -57,7 +57,7 @@ if(${dlib_FOUND})
     target_include_directories(LandmarkDetector PUBLIC ${dlib_INCLUDE_DIRS})
 else()
     target_link_libraries(LandmarkDetector INTERFACE dlib)
-    target_include_directories(LandmarkDetector PRIVATE ../../3rdParty/dlib/include)
+    target_include_directories(LandmarkDetector PUBLIC ../../3rdParty/dlib/include)
 endif()
 
 install (TARGETS LandmarkDetector EXPORT OpenFaceTargets LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
