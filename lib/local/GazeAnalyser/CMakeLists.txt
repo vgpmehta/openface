@@ -24,6 +24,7 @@ target_include_directories(GazeAnalyser PRIVATE ${GAZEANALYSER_SOURCE_DIR}/inclu
 target_include_directories(GazeAnalyser PRIVATE ${TBB_ROOT_DIR}/include)
 target_include_directories(GazeAnalyser PUBLIC ${Boost_INCLUDE_DIRS})
 target_include_directories(GazeAnalyser PUBLIC ${Boost_INCLUDE_DIRS}/boost)
+target_include_directories(GazeAnalyser PUBLIC ${OpenCV_INCLUDE_DIRS})
 
 target_link_libraries(GazeAnalyser INTERFACE ${OpenCV_LIBS} ${Boost_LIBRARIES} ${TBB_LIBRARIES} ${BLAS_LIBRARIES})
 

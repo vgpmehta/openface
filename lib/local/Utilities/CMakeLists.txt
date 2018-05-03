@@ -31,6 +31,7 @@ target_include_directories(Utilities PUBLIC
 target_include_directories(Utilities PRIVATE ${UTILITIES_SOURCE_DIR}/include)
 target_include_directories(Utilities PUBLIC ${Boost_INCLUDE_DIRS})
 target_include_directories(Utilities PUBLIC ${Boost_INCLUDE_DIRS}/boost)
+target_include_directories(Utilities PUBLIC ${OpenCV_INCLUDE_DIRS})
 
 target_link_libraries(Utilities INTERFACE ${OpenCV_LIBS} ${Boost_LIBRARIES} ${TBB_LIBRARIES})
 

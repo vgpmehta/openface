@@ -1,5 +1,3 @@
-#TBB library
-include_directories(${TBB_ROOT_DIR}/include)
 
 #Utilities library
 include_directories(../../local/Utilities/include)
@@ -41,8 +39,10 @@ target_include_directories(LandmarkDetector PUBLIC
     $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include/OpenFace>)
 
 target_include_directories(LandmarkDetector PRIVATE ${LandmarkDetector_SOURCE_DIR}/include)
+target_include_directories(LandmarkDetector PRIVATE ${TBB_ROOT_DIR}/include)
 target_include_directories(LandmarkDetector PUBLIC ${Boost_INCLUDE_DIRS})
 target_include_directories(LandmarkDetector PUBLIC ${Boost_INCLUDE_DIRS}/boost)
+target_include_directories(LandmarkDetector PUBLIC ${OpenCV_INCLUDE_DIRS})
 
 target_link_libraries(LandmarkDetector INTERFACE ${OpenCV_LIBS} ${Boost_LIBRARIES} ${TBB_LIBRARIES} ${BLAS_LIBRARIES})
 

@@ -12,7 +12,7 @@ add_definitions(-DCONFIG_DIR="${CONFIG_DIR}")
 # make sure we'll use OpenBLAS only: there's a header file naming difference between different
 # implementations; so OpenFace wants cblas.h;
 set(BLA_VENDOR "OpenBLAS")
-find_package( BLAS )
+find_package( BLAS QUIET)
 
 if ( BLAS_LIBRARIES STREQUAL "FALSE")
 	unset(BLAS_LIBRARIES)
@@ -188,18 +188,8 @@ else ()
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -msse -msse2 -msse3")
 endif ()
 
-# Boost
-if(WIN32)
-	include_directories(lib/3rdParty/boost)
-	include_directories(lib/3rdParty/boost/boost)
-	link_directories( ${PROJECT_SOURCE_DIR}/lib/3rdParty/boost/lib )
-else()
-	INCLUDE_DIRECTORIES(${BOOST_INCLUDE_DIR})
-endif()
-
 # dlib
-find_package(dlib 18.18)
-
+find_package(dlib 18.18 QUIET)
 if(${dlib_FOUND})
     message("dlib information:")
     message("  dlib version: ${dlib_VERSION}")
