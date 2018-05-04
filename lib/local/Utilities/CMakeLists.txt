@@ -29,7 +29,7 @@ target_include_directories(Utilities PUBLIC
     $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include/OpenFace>)
 
 target_include_directories(Utilities PRIVATE ${UTILITIES_SOURCE_DIR}/include)
-target_include_directories(Utilities PRIVATE ${TBB_ROOT_DIR}/include)
+target_include_directories(Utilities PUBLIC ${TBB_ROOT_DIR}/include)
 target_include_directories(Utilities PUBLIC ${Boost_INCLUDE_DIRS})
 target_include_directories(Utilities PUBLIC ${Boost_INCLUDE_DIRS}/boost)
 target_include_directories(Utilities PUBLIC ${OpenCV_INCLUDE_DIRS})

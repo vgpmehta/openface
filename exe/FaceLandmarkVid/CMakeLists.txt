@@ -1,6 +1,3 @@
-#TBB library
-include_directories(${TBB_ROOT_DIR}/include)
-
 add_executable(FaceLandmarkVid FaceLandmarkVid.cpp)
 
 # Local libraries

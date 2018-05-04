@@ -1,6 +1,3 @@
-#TBB library
-include_directories(${TBB_ROOT_DIR}/include)
-
 # Local libraries
 include_directories(${LandmarkDetector_SOURCE_DIR}/include)
 	
