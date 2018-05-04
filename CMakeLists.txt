@@ -198,6 +198,11 @@ if(${dlib_FOUND})
     include_directories(${dlib_INCLUDE_DIRS})
 else()
     message(WARNING "dlib not found in the system. Using the one vended with OpenFace.")
+
+    # using global include directory for OpenFace vended dlib
+    # since actual include dir is inside the source dir;
+    # (target_include_directories will complain on it)
+    # still this include dir required to be in  public target interface
     include_directories(lib/3rdParty/dlib/include)
 
     # dlib library

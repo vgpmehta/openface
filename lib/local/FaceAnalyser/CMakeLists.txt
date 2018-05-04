@@ -55,7 +55,6 @@ if(${dlib_FOUND})
     target_include_directories(FaceAnalyser PUBLIC ${dlib_INCLUDE_DIRS})
 else()
     target_link_libraries(FaceAnalyser INTERFACE dlib)
-    target_include_directories(FaceAnalyser PUBLIC ../../3rdParty/dlib/include)
 endif()
 
 install (TARGETS FaceAnalyser EXPORT OpenFaceTargets LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
