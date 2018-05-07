@@ -43,18 +43,12 @@ target_include_directories(FaceAnalyser PUBLIC ${Boost_INCLUDE_DIRS}/boost)
 target_include_directories(FaceAnalyser PUBLIC ${OpenCV_INCLUDE_DIRS})
 
 target_link_libraries(FaceAnalyser INTERFACE ${OpenCV_LIBS} ${Boost_LIBRARIES} ${TBB_LIBRARIES} ${BLAS_LIBRARIES})
+target_link_libraries(FaceAnalyser PUBLIC dlib)
 
 if(${BLAS_FOUND})
     target_include_directories(FaceAnalyser PRIVATE ${BLAS_ROOT_DIR})
 else()
     target_include_directories(FaceAnalyser PRIVATE ../../3rdParty/OpenBLAS/include)
-endif()
-
-if(${dlib_FOUND})
-    target_link_libraries(FaceAnalyser INTERFACE ${dlib_LIBRARIES})
-    target_include_directories(FaceAnalyser PUBLIC ${dlib_INCLUDE_DIRS})
-else()
-    target_link_libraries(FaceAnalyser INTERFACE dlib)
 endif()
 
 install (TARGETS FaceAnalyser EXPORT OpenFaceTargets LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)

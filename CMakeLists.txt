@@ -195,18 +195,17 @@ if(${dlib_FOUND})
     message("  dlib version: ${dlib_VERSION}")
     message("  dlib_INCLUDE_DIRS: ${dlib_INCLUDE_DIRS}")
 
-    include_directories(${dlib_INCLUDE_DIRS})
+    if (NOT TARGET dlib)
+        add_library(dlib INTERFACE IMPORTED GLOBAL)
+    endif()
+    set_target_properties(dlib PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${dlib_INCLUDE_DIRS})
+    set_target_properties(dlib PROPERTIES INTERFACE_LINK_LIBRARIES "${dlib_LIBRARIES}")
 else()
     message(WARNING "dlib not found in the system. Using the one vended with OpenFace.")
 
-    # using global include directory for OpenFace vended dlib
-    # since actual include dir is inside the source dir;
-    # (target_include_directories will complain on it)
-    # still this include dir required to be in  public target interface
-    include_directories(lib/3rdParty/dlib/include)
-
     # dlib library
     add_subdirectory(lib/3rdParty/dlib)
+    target_include_directories(dlib INTERFACE lib/3rdParty/dlib/include)
 endif()
 
 # suppress auto_ptr deprecation warnings
