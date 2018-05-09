@@ -26,7 +26,7 @@ target_include_directories(GazeAnalyser PUBLIC ${Boost_INCLUDE_DIRS})
 target_include_directories(GazeAnalyser PUBLIC ${Boost_INCLUDE_DIRS}/boost)
 target_include_directories(GazeAnalyser PUBLIC ${OpenCV_INCLUDE_DIRS})
 
-target_link_libraries(GazeAnalyser INTERFACE ${OpenCV_LIBS} ${Boost_LIBRARIES} ${TBB_LIBRARIES} ${BLAS_LIBRARIES})
+target_link_libraries(GazeAnalyser PUBLIC ${OpenCV_LIBS} ${Boost_LIBRARIES} ${TBB_LIBRARIES} ${BLAS_LIBRARIES})
 target_link_libraries(GazeAnalyser PUBLIC dlib)
 
 if(${BLAS_FOUND})

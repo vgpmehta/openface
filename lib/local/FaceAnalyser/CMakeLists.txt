@@ -42,7 +42,7 @@ target_include_directories(FaceAnalyser PUBLIC ${Boost_INCLUDE_DIRS})
 target_include_directories(FaceAnalyser PUBLIC ${Boost_INCLUDE_DIRS}/boost)
 target_include_directories(FaceAnalyser PUBLIC ${OpenCV_INCLUDE_DIRS})
 
-target_link_libraries(FaceAnalyser INTERFACE ${OpenCV_LIBS} ${Boost_LIBRARIES} ${TBB_LIBRARIES} ${BLAS_LIBRARIES})
+target_link_libraries(FaceAnalyser PUBLIC ${OpenCV_LIBS} ${Boost_LIBRARIES} ${TBB_LIBRARIES} ${BLAS_LIBRARIES})
 target_link_libraries(FaceAnalyser PUBLIC dlib)
 
 if(${BLAS_FOUND})

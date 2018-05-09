@@ -34,7 +34,7 @@ target_include_directories(Utilities PUBLIC ${Boost_INCLUDE_DIRS})
 target_include_directories(Utilities PUBLIC ${Boost_INCLUDE_DIRS}/boost)
 target_include_directories(Utilities PUBLIC ${OpenCV_INCLUDE_DIRS})
 
-target_link_libraries(Utilities INTERFACE ${OpenCV_LIBS} ${Boost_LIBRARIES} ${TBB_LIBRARIES})
+target_link_libraries(Utilities PUBLIC ${OpenCV_LIBS} ${Boost_LIBRARIES} ${TBB_LIBRARIES})
 target_link_libraries(Utilities PUBLIC dlib)
 
 install (TARGETS Utilities EXPORT OpenFaceTargets LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
