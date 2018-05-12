@@ -222,51 +222,52 @@ add_subdirectory(lib/local/GazeAnalyser)
 # Utilities library
 add_subdirectory(lib/local/Utilities)
 
-# export libraries for reuse
-include(CMakePackageConfigHelpers)
-
-set(LIB_INSTALL_DIR lib)
-set(CONFIG_DEST_DIR ${LIB_INSTALL_DIR}/cmake/OpenFace/)
-set(OpenFace_LIBRARIES OpenFace::GazeAnalyser OpenFace::FaceAnalyser OpenFace::LandmarkDetector OpenFace::Utilities)
-
-# export targets [build tree]
-export(EXPORT OpenFaceTargets
-    NAMESPACE OpenFace::
-    FILE "${CMAKE_CURRENT_BINARY_DIR}/${CONFIG_DEST_DIR}/OpenFaceTargets.cmake")
-
-# write package version file
-write_basic_package_version_file(
-    "${CMAKE_CURRENT_BINARY_DIR}/${CONFIG_DEST_DIR}/OpenFaceConfigVersion.cmake"
-    COMPATIBILITY AnyNewerVersion)
-
-# define [build tree] bindir relative include dir
-foreach(lib ${OpenFace_LIBRARIES})
-  if(TARGET ${lib})
-    get_target_property(libname ${lib} "NAME")
-    file(RELATIVE_PATH rel_incdir ${CMAKE_CURRENT_BINARY_DIR} "${CMAKE_CURRENT_SOURCE_DIR}/lib/local/${libname}/include")
-    list(APPEND OPENFACE_INCLUDE_DIRS ${rel_incdir})
-  endif()
-endforeach()
-list(REMOVE_DUPLICATES OPENFACE_INCLUDE_DIRS)
-
-# write package config file from template [build tree]
-# all PATH_VARS should be relative to a ${CMAKE_CURRENT_BINARY_DIR}
-# as it's the "prefix" of our non installed package in the build tree
-configure_package_config_file(cmake/OpenFaceConfig.cmake.in
-    "${CMAKE_CURRENT_BINARY_DIR}/${CONFIG_DEST_DIR}/OpenFaceConfig.cmake"
-    INSTALL_DESTINATION ${CONFIG_DEST_DIR}
-    PATH_VARS OPENFACE_INCLUDE_DIRS)
-
-# store current build dir in the CMake package registry
-export(PACKAGE OpenFace)
-
-# test if this file is a top list list file
+# test if this file is a top list file
 # thus we're building an OpenFace as a standalone
 # project; otherwise OpenFace is being built as a
-# part or larger tree
+# part or larger tree;
 if(CMAKE_CURRENT_SOURCE_DIR STREQUAL "${CMAKE_SOURCE_DIR}")
+
     # for a standalone builds - allow installing package configs;
-    message(STATUS "Standalone mode detected")
+    message(STATUS "Standalone mode detected; Enabling configuration/targets export.")
+
+    # export libraries for reuse
+    include(CMakePackageConfigHelpers)
+
+    set(LIB_INSTALL_DIR lib)
+    set(CONFIG_DEST_DIR ${LIB_INSTALL_DIR}/cmake/OpenFace/)
+    set(OpenFace_LIBRARIES OpenFace::GazeAnalyser OpenFace::FaceAnalyser OpenFace::LandmarkDetector OpenFace::Utilities)
+
+    # export targets [build tree]
+    export(EXPORT OpenFaceTargets
+        NAMESPACE OpenFace::
+        FILE "${CMAKE_CURRENT_BINARY_DIR}/${CONFIG_DEST_DIR}/OpenFaceTargets.cmake")
+
+    # write package version file
+    write_basic_package_version_file(
+        "${CMAKE_CURRENT_BINARY_DIR}/${CONFIG_DEST_DIR}/OpenFaceConfigVersion.cmake"
+        COMPATIBILITY AnyNewerVersion)
+
+    # define [build tree] bindir relative include dir
+    foreach(lib ${OpenFace_LIBRARIES})
+      if(TARGET ${lib})
+        get_target_property(libname ${lib} "NAME")
+        file(RELATIVE_PATH rel_incdir ${CMAKE_CURRENT_BINARY_DIR} "${CMAKE_CURRENT_SOURCE_DIR}/lib/local/${libname}/include")
+        list(APPEND OPENFACE_INCLUDE_DIRS ${rel_incdir})
+      endif()
+    endforeach()
+    list(REMOVE_DUPLICATES OPENFACE_INCLUDE_DIRS)
+
+    # write package config file from template [build tree]
+    # all PATH_VARS should be relative to a ${CMAKE_CURRENT_BINARY_DIR}
+    # as it's the "prefix" of our non installed package in the build tree
+    configure_package_config_file(cmake/OpenFaceConfig.cmake.in
+        "${CMAKE_CURRENT_BINARY_DIR}/${CONFIG_DEST_DIR}/OpenFaceConfig.cmake"
+        INSTALL_DESTINATION ${CONFIG_DEST_DIR}
+        PATH_VARS OPENFACE_INCLUDE_DIRS)
+
+    # store current build dir in the CMake package registry
+    # export(PACKAGE OpenFace)
 
     # install exported targets [install tree]
     install(EXPORT OpenFaceTargets
