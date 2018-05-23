@@ -22,7 +22,7 @@ include_directories(../../lib/local/FaceAnalyser/include)
 include_directories(../../lib/local/GazeAnalyser/include)	
 include_directories(../../lib/local/Utilities/include)	
 			
-add_executable(openface-cross-platform-gui main.cpp)
+add_executable(openface-cross-platform-gui main.cpp render-thread.cpp OpenfaceWidget.cpp)
 
 target_link_libraries(openface-cross-platform-gui LandmarkDetector)
 target_link_libraries(openface-cross-platform-gui FaceAnalyser)
