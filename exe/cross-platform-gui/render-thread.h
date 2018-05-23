@@ -19,7 +19,8 @@ signals:
 
 protected:
   void run() override;
-
+public slots:
+  void do_csv_work(void);
 private:
   QMutex mutex;
   QWaitCondition condition;

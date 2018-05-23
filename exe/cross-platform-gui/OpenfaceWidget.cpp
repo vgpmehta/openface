@@ -5,10 +5,17 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QTimer>
 
 #include "OpenfaceWidget.h"
 
 OpenfaceWidget::OpenfaceWidget(QWidget *parent) : QMainWindow(parent), m_main_app_splitter(this) {
+
+  QTimer *timer_worker = new QTimer{this};
+  QObject::connect(timer_worker, &QTimer::timeout, &m_thread, &RenderThread::do_csv_work);
+
+  timer_worker->start(2000);
+
   QObject::connect(&m_thread, &RenderThread::renderedImage,
 		   this, &OpenfaceWidget::updatePixmap);
   QObject::connect(&m_thread, &QThread::finished, this, &QObject::deleteLater);
