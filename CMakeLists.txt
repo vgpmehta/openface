@@ -46,6 +46,19 @@ foreach(file ${files})
 	install(FILES ${file} DESTINATION ${CMAKE_CONFIG_DIR}/model)
 endforeach()
 
+#copy Dlib Landmark model
+file(GLOB files "lib/local/LandmarkDetector/model/*.dat")
+foreach(file ${files})
+	if (MSVC)
+		file(COPY ${file} DESTINATION ${CMAKE_BINARY_DIR}/bin/Debug/model)
+		file(COPY ${file} DESTINATION ${CMAKE_BINARY_DIR}/bin/Release/model)
+	else(MSVC)
+		file(COPY ${file} DESTINATION ${CMAKE_BINARY_DIR}/bin/model)
+	endif(MSVC)
+
+	install(FILES ${file} DESTINATION ${CMAKE_CONFIG_DIR}/model)
+endforeach()
+
 # Move the hierarchical LandmarkDetector models
 file(GLOB files "lib/local/LandmarkDetector/model/model*")
 foreach(file ${files})
@@ -222,3 +235,4 @@ add_subdirectory(exe/FaceLandmarkImg)
 add_subdirectory(exe/FaceLandmarkVid)
 add_subdirectory(exe/FaceLandmarkVidMulti)
 add_subdirectory(exe/FeatureExtraction)
+add_subdirectory(python)

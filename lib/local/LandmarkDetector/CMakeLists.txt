@@ -1,6 +1,5 @@
 #TBB library
 include_directories(${TBB_ROOT_DIR}/include)
-
 include_directories(${BOOST_INCLUDE_DIR})
 
 #OpenBlas library
@@ -48,6 +47,9 @@ include_directories(./include)
 include_directories(${LandmarkDetector_SOURCE_DIR}/include)
 
 add_library( LandmarkDetector ${SOURCE} ${HEADERS} )
+add_library( LandmarkDetectorShared SHARED ${SOURCE} ${HEADERS} )
+target_link_libraries( LandmarkDetectorShared ${OpenCV_LIBS} ${Boost_LIBRARIES} ${TBB_LIBRARIES} )
 
 install (TARGETS LandmarkDetector DESTINATION lib)
+install (TARGETS  LandmarkDetectorShared LIBRARY DESTINATION lib PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ GROUP_WRITE WORLD_WRITE WORLD_EXECUTE WORLD_READ)
 install (FILES ${HEADERS} DESTINATION include/OpenFace)
