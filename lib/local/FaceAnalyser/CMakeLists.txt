@@ -27,7 +27,7 @@ include_directories(./include)
 include_directories(${FACEANALYSER_SOURCE_DIR}/include)
 include_directories(../LandmarkDetector/include)
 
-add_library( FaceAnalyser ${SOURCE} ${HEADERS})
+add_library( FaceAnalyser SHARED ${SOURCE} ${HEADERS})
 
 install (TARGETS FaceAnalyser DESTINATION bin)
 install (FILES ${HEADERS} DESTINATION include)
