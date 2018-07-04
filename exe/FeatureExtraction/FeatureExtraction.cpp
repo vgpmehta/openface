@@ -214,7 +214,7 @@ void visualise_tracking(cv::Mat& captured_image, const LandmarkDetector::CLNF& f
 	std::sprintf(fpsC, "%d", (int)fps_tracker);
 	string fpsSt("FPS:");
 	fpsSt += fpsC;
-	cv::putText(captured_image, fpsSt, cv::Point(10, 20), CV_FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 0, 0), 1, CV_AA);
+	cv::putText(captured_image, fpsSt, cv::Point(10, 20), cv::FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 0, 0), 1, cv::LINE_AA);
 
 	if (!det_parameters.quiet_mode)
 	{
@@ -529,7 +529,7 @@ int main (int argc, char **argv)
 
 			if(captured_image.channels() == 3)
 			{
-				cvtColor(captured_image, grayscale_image, CV_BGR2GRAY);				
+				cvtColor(captured_image, grayscale_image, cv::COLOR_BGR2GRAY);				
 			}
 			else
 			{
@@ -607,7 +607,7 @@ int main (int argc, char **argv)
 
 				if (sim_warped_img.channels() == 3 && grayscale)
 				{
-					cvtColor(sim_warped_img, sim_warped_img, CV_BGR2GRAY);
+					cvtColor(sim_warped_img, sim_warped_img, cv::COLOR_BGR2GRAY);
 				}
 
 				char name[100];

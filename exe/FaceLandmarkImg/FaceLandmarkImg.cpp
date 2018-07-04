@@ -103,17 +103,17 @@ void convert_to_grayscale(const cv::Mat& in, cv::Mat& out)
 			{
 				cv::Mat tmp = in / 256;
 				tmp.convertTo(tmp, CV_8U);
-				cv::cvtColor(tmp, out, CV_BGR2GRAY);
+				cv::cvtColor(tmp, out, cv::COLOR_BGR2GRAY);
 			}
 		}
 		else
 		{
-			cv::cvtColor(in, out, CV_BGR2GRAY);
+			cv::cvtColor(in, out, cv::COLOR_BGR2GRAY);
 		}
 	}
 	else if(in.channels() == 4)
 	{
-		cv::cvtColor(in, out, CV_BGRA2GRAY);
+		cv::cvtColor(in, out, cv::COLOR_BGRA2GRAY);
 	}
 	else
 	{

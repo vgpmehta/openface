@@ -160,7 +160,7 @@ void visualise_tracking(cv::Mat& captured_image, cv::Mat_<float>& depth_image, c
 	std::sprintf(fpsC, "%d", (int)fps_tracker);
 	string fpsSt("FPS:");
 	fpsSt += fpsC;
-	cv::putText(captured_image, fpsSt, cv::Point(10, 20), CV_FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 0, 0));
+	cv::putText(captured_image, fpsSt, cv::Point(10, 20), cv::FONT_HERSHEY_SIMPLEX, 0.5, CV_RGB(255, 0, 0));
 
 	if (!det_parameters.quiet_mode)
 	{
@@ -313,7 +313,7 @@ int main (int argc, char **argv)
 
 			if(captured_image.channels() == 3)
 			{
-				cv::cvtColor(captured_image, grayscale_image, CV_BGR2GRAY);				
+				cv::cvtColor(captured_image, grayscale_image, cv::COLOR_BGR2GRAY);				
 			}
 			else
 			{
