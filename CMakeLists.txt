@@ -3,7 +3,7 @@ project(OpenFace VERSION 2.0.2)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/")
 
 set(CMAKE_CONFIG_DIR etc/OpenFace)
 set(CONFIG_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_CONFIG_DIR}")
@@ -23,7 +23,7 @@ if ( ${OpenBLAS_INCLUDE_FOUND} )
     MESSAGE("  OpenBLAS_INCLUDE: ${OpenBLAS_INCLUDE_DIR}")
 else()
     MESSAGE(WARNING "OpenBLAS include not found in the system. Using the one vended with OpenFace.")
-	set(OpenBLAS_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/lib/3rdParty/OpenBLAS/include")
+	set(OpenBLAS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib/3rdParty/OpenBLAS/include")
     MESSAGE("  OpenBLAS_INCLUDE: ${OpenBLAS_INCLUDE_DIR}")
 endif()
 
