@@ -269,32 +269,12 @@ public:
 	// but not automatically called on explicit Dispose().
 	// May be called multiple times.
 	!FaceAnalyserManaged()
-	{
-		
-		if (hog_features != nullptr)
-		{
-			delete hog_features;
-		}
-
-		if (aligned_face != nullptr)
-		{
-			delete aligned_face;
-		}
-
-		if (num_cols != nullptr)
-		{
-			delete num_cols;
-		}
-
-		if (num_rows != nullptr)
-		{
-			delete num_rows;
-		}
-
-		if (face_analyser != nullptr)
-		{
-			delete face_analyser;
-		}
+	{		
+		delete hog_features;
+		delete aligned_face;
+		delete num_cols;
+		delete num_rows;
+		delete face_analyser;
 	}
 
 	// Destructor. Called on explicit Dispose() only.

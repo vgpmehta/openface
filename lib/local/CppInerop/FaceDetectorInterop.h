@@ -139,18 +139,9 @@ namespace FaceDetectorInterop {
 		// May be called multiple times.
 		!FaceDetector()
 		{
-			if (face_detector_hog != nullptr)
-			{
-				delete face_detector_hog;
-			}
-			if (face_detector_mtcnn != nullptr)
-			{
-				delete face_detector_mtcnn;
-			}
-			if (face_detector_haar != nullptr)
-			{
-				delete face_detector_haar;
-			}
+			delete face_detector_hog;
+			delete face_detector_mtcnn;
+			delete face_detector_haar;
 		}
 
 		// Destructor. Called on explicit Dispose() only.

@@ -75,12 +75,7 @@ namespace UtilitiesOF {
 
 		!RecorderOpenFaceParameters()
 		{
-			// Automatically closes capture object before freeing memory.	
-			if (m_params != nullptr)
-			{
-				delete m_params;
-			}
-
+			delete m_params;
 		}
 
 		// Destructor. Called on explicit Dispose() only.
@@ -247,12 +242,7 @@ namespace UtilitiesOF {
 		// May be called multiple times.
 		!RecorderOpenFace()
 		{
-			// Automatically closes capture object before freeing memory.	
-			if (m_recorder != nullptr)
-			{
-				delete m_recorder;
-			}
-
+			delete m_recorder;
 		}
 
 		// Destructor. Called on explicit Dispose() only.
