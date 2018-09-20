@@ -32,8 +32,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef __LANDMARK_DETECTOR_UTILS_INTEROP_h_
-#define __LANDMARK_DETECTOR_UTILS_INTEROP_h_
+#ifndef FACE_DETECTOR_INTEROP_H
+#define FACE_DETECTOR_INTEROP_H
 
 #pragma once
 
@@ -163,4 +163,4 @@ namespace FaceDetectorInterop {
 
 }
 
-#endif
+#endif // FACE_DETECTOR_INTEROP_H

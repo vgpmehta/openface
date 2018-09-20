@@ -33,9 +33,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-// FaceAnalyser_Interop.h
-#ifndef __GAZE_ANALYSER_INTEROP_h_
-#define __GAZE_ANALYSER_INTEROP_h_
+#ifndef GAZE_ANALYSER_INTEROP_H
+#define GAZE_ANALYSER_INTEROP_H
 
 #pragma once
 
@@ -211,4 +210,4 @@ namespace GazeAnalyser_Interop {
 	};
 }
 
-#endif
+#endif // GAZE_ANALYSER_INTEROP_H

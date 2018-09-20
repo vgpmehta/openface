@@ -33,8 +33,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // FaceAnalyser_Interop.h
-#ifndef __FACE_ANALYSER_INTEROP_h_
-#define __FACE_ANALYSER_INTEROP_h_
+#ifndef FACE_ANALYSER_INTEROP_H
+#define FACE_ANALYSER_INTEROP_H
 
 #pragma once
 
@@ -306,4 +306,4 @@ public:
 };
 }
 
-#endif
+#endif // FACE_ANALYSER_INTEROP_H
