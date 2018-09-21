@@ -113,7 +113,11 @@ namespace OpenCVWrappers {
 		// May be called multiple times.
 		!RawImage()
 		{
-			delete mat;
+			if (mat)
+			{
+				delete mat;
+				mat = NULL;
+			}
 		}
 
 		// Destructor. Called on explicit Dispose() only.
