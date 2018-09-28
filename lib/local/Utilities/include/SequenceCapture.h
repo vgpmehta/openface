@@ -39,9 +39,8 @@
 #include <sstream>
 #include <vector>
 
-// For speeding up capture
+#include <thread>
 #include "tbb/concurrent_queue.h"
-#include "tbb/task_group.h"
 
 // OpenCV includes
 #include <opencv2/core/core.hpp>
@@ -110,6 +109,8 @@ namespace Utilities
 		// Allows to differentiate if failed because no input specified or if failed to open a specified input
 		bool no_input_specified;
 
+				// Storing the captured data queue
+		static const int CAPTURE_CAPACITY = 200; // 200 MB
 
 	private:
 
@@ -119,7 +120,7 @@ namespace Utilities
 		bool capturing;
 
 		// For keeping track of tasks
-		tbb::task_group capture_threads;
+		std::thread capture_thread;
 
 		// A thread that will write video output, so that the rest of the application does not block on it
 		void CaptureThread();
@@ -137,9 +138,6 @@ namespace Utilities
 		cv::Mat latest_frame;
 		cv::Mat_<uchar> latest_gray_frame;
 		
-
-		// Storing the captured data queue
-		const int CAPTURE_CAPACITY = 200; // 200 MB
 		// Storing capture timestamp, RGB image, gray image
 		tbb::concurrent_bounded_queue<std::tuple<double, cv::Mat, cv::Mat_<uchar> > > capture_queue;
 

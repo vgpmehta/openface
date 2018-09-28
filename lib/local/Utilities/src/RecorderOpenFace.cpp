@@ -373,13 +373,7 @@ void RecorderOpenFace::WriteObservation()
 			aligned_face_queue.set_capacity(capacity);
 
 			// Start the alignment output thread			
-#ifdef _WIN32 
-			// For keeping track of tasks
-			writing_threads.run([&] {AlignedImageWritingTask(&aligned_face_queue); });
-#else
-			// Start the alignment output thread
 			aligned_writing_thread = std::thread(&AlignedImageWritingTask, &aligned_face_queue);
-#endif
 		}
 
 		char name[100];
@@ -442,13 +436,7 @@ void RecorderOpenFace::WriteObservationTracked()
 			}
 
 			// Start the video and tracked image writing thread
-#ifdef _WIN32 
-			// For keeping track of tasks
-			writing_threads.run([&] {VideoWritingTask(&vis_to_out_queue, params.isSequence(), &video_writer); });
-#else
 			video_writing_thread = std::thread(&VideoWritingTask, &vis_to_out_queue, params.isSequence(), &video_writer);
-#endif
-
 
 		}
 
@@ -541,14 +529,10 @@ void RecorderOpenFace::Close()
 	aligned_face_queue.push(std::pair<string, cv::Mat>("", cv::Mat()));
 
 	// Make sure the recording threads complete
-#ifdef _WIN32 
-	writing_threads.wait();
-#else
 	if (video_writing_thread.joinable())
 		video_writing_thread.join();
 	if (aligned_writing_thread.joinable())
 		aligned_writing_thread.join();
-#endif
 
 	tracked_writing_thread_started = false;
 	aligned_writing_thread_started = false;

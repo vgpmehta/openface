@@ -283,7 +283,8 @@ void SequenceCapture::Close()
 	std::tuple<double, cv::Mat, cv::Mat_<uchar> > data;
 	capture_queue.try_pop(data);
 
-	capture_threads.wait();
+	if (capture_thread.joinable())
+		capture_thread.join();
 	
 	// Empty the capture queue (in case a capture was cancelled and we still have frames in the queue)
 	capture_queue.clear();
@@ -340,7 +341,8 @@ bool SequenceCapture::OpenVideoFile(std::string video_file, float fx, float fy, 
 
 	this->name = video_file;
 	capturing = true;
-	capture_threads.run([&] {CaptureThread(); });
+
+	capture_thread = std::thread(&SequenceCapture::CaptureThread, this);
 
 	return true;
 
@@ -405,8 +407,9 @@ bool SequenceCapture::OpenImageSequence(std::string directory, float fx, float f
 	is_image_seq = true;	
 	vid_length = image_files.size();
 	capturing = true;
-	capture_threads.run([&] {CaptureThread(); });
 
+	capture_thread = std::thread(&SequenceCapture::CaptureThread, this);
+	
 	return true;
 
 }
