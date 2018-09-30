@@ -74,6 +74,7 @@ before_install:
   
 script:
   - $CXX --version
+  - chmod 777 ./download_models.sh
   - ./download_models.sh
   - mkdir build
   - cd build
