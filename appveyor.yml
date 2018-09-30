@@ -16,7 +16,7 @@ build:
   project: OpenFace.sln
   verbosity: minimal
 test_script:
-  - ps: ./download_models.ps1
+  - cmd: download_models.cmd
   - cmd: dir
   - cmd: if exist x64 (cd x64)
   - cmd: if exist Debug (cd Debug)
