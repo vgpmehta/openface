@@ -38,9 +38,10 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <queue>
 
 #include <thread>
-#include "tbb/concurrent_queue.h"
+#include <mutex>
 
 // OpenCV includes
 #include <opencv2/core/core.hpp>
@@ -139,7 +140,8 @@ namespace Utilities
 		cv::Mat_<uchar> latest_gray_frame;
 		
 		// Storing capture timestamp, RGB image, gray image
-		tbb::concurrent_bounded_queue<std::tuple<double, cv::Mat, cv::Mat_<uchar> > > capture_queue;
+		std::queue<std::tuple<double, cv::Mat, cv::Mat_<uchar> > > capture_queue;
+		std::mutex capture_queue_lock;
 
 		// Keeping track of frame number and the files in the image sequence
 		size_t  frame_num;

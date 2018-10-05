@@ -279,15 +279,12 @@ void SequenceCapture::Close()
 	// Close the capturing threads
 	capturing = false;
 
-	// In case the queue is full and the thread is blocking, free one element so it can finish
-	std::tuple<double, cv::Mat, cv::Mat_<uchar> > data;
-	capture_queue.try_pop(data);
-
 	if (capture_thread.joinable())
 		capture_thread.join();
 	
 	// Empty the capture queue (in case a capture was cancelled and we still have frames in the queue)
-	capture_queue.clear();
+	std::queue<std::tuple<double, cv::Mat, cv::Mat_<uchar> > > empty;
+	std::swap(capture_queue, empty);
 
 	// Release the capture objects
 	if (capture.isOpened())
@@ -446,7 +443,6 @@ void SequenceCapture::SetCameraIntrinsics(float fx, float fy, float cx, float cy
 void SequenceCapture::CaptureThread()
 {
 	int capacity = (CAPTURE_CAPACITY * 1024 * 1024) / (4 * frame_width * frame_height);
-	capture_queue.set_capacity(capacity);
 	int frame_num_int = 0;
 
 	while(capturing)
@@ -488,7 +484,14 @@ void SequenceCapture::CaptureThread()
 		// Set the grayscale frame
 		ConvertToGrayscale_8bit(tmp_frame, tmp_gray_frame);
 
+		while (capturing && capture_queue.size() >= capacity)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		}
+
+		capture_queue_lock.lock();
 		capture_queue.push(std::make_tuple(timestamp_curr, tmp_frame, tmp_gray_frame));
+		capture_queue_lock.unlock();
 	}
 }
 
@@ -498,7 +501,13 @@ cv::Mat SequenceCapture::GetNextFrame()
 	{
 		std::tuple<double, cv::Mat, cv::Mat_<uchar> > data;
 
-		capture_queue.pop(data);
+		capture_queue_lock.lock();
+
+		data = capture_queue.front();
+		capture_queue.pop();
+
+		capture_queue_lock.unlock();
+
 		time_stamp = std::get<0>(data);
 		latest_frame = std::get<1>(data);
 		latest_gray_frame = std::get<2>(data);
