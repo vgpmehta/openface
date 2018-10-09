@@ -38,14 +38,14 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-#include <queue>
 
 #include <thread>
-#include <mutex>
 
 // OpenCV includes
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+
+#include <ConcurrentQueue.h>
 
 namespace Utilities
 {
@@ -140,8 +140,7 @@ namespace Utilities
 		cv::Mat_<uchar> latest_gray_frame;
 		
 		// Storing capture timestamp, RGB image, gray image
-		std::queue<std::tuple<double, cv::Mat, cv::Mat_<uchar> > > capture_queue;
-		std::mutex capture_queue_lock;
+		ConcurrentQueue<std::tuple<double, cv::Mat, cv::Mat_<uchar> > > capture_queue;
 
 		// Keeping track of frame number and the files in the image sequence
 		size_t  frame_num;
