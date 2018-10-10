@@ -45,9 +45,9 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-#include "tbb/concurrent_queue.h"
-
 #include <thread>
+
+#include <ConcurrentQueue.h>
 
 namespace Utilities
 {
@@ -121,6 +121,10 @@ namespace Utilities
 
 		void PrepareRecording(const std::string& in_filename);
 
+		// A thread that will write image and video output (the slowest parts of output_
+		void VideoWritingTask(bool is_sequence);
+		void AlignedImageWritingTask();
+
 		// Keeping track of what to output and how to output it
 		const RecorderOpenFaceParameters params;
 
@@ -172,13 +176,13 @@ namespace Utilities
 		const int TRACKED_QUEUE_CAPACITY = 100;
 		bool tracked_writing_thread_started;
 		cv::Mat vis_to_out;
-		tbb::concurrent_bounded_queue<std::pair<std::string, cv::Mat> > vis_to_out_queue;
+		ConcurrentQueue<std::pair<std::string, cv::Mat> > vis_to_out_queue;
 
 		// For aligned face writing
 		const int ALIGNED_QUEUE_CAPACITY = 100;
 		bool aligned_writing_thread_started;
 		cv::Mat aligned_face;
-		tbb::concurrent_bounded_queue<std::pair<std::string, cv::Mat> > aligned_face_queue;
+		ConcurrentQueue<std::pair<std::string, cv::Mat> > aligned_face_queue;
 
 		std::thread video_writing_thread;
 		std::thread aligned_writing_thread;
