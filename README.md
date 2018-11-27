@@ -1,4 +1,14 @@
-# OpenFace 2.0.6: an open source facial behavior analysis toolkit
+![ ](https://camo.githubusercontent.com/3b74084ed00cb47fe3d2604372ebf842369e40fe/68747470733a2f2f692e696d6775722e636f6d2f6e5870564a65702e676966)
+
+# Eye Contact Detection built on top of OpenFace 2.0.6
+
+We present a tool made for the [USC Interaction Lab](http://robotics.usc.edu/interaction/img/ILAB_icon_yellow_nodecap.png) under the guidance of Lauren Klien, PhD. This tool uses state of the art prediction models to predict eye contact in infants with a 97% success rate. Please check the [eye_contact_files](https://github.com/pashpashpash/Eye-Detection-With-OpenFace/tree/master/eye_contact_files) directory for installation/running instructions.
+
+Project Contributors: John Dwyer, Nik Pash, Chuanxiu Xiong, Alec Schule, Christian Glover
+
+Research conducted under the guidance of Lauren Klien, PhD candidate at University of Southern California.
+
+<img src="http://robotics.usc.edu/interaction/img/ILAB_icon_yellow_nodecap.png" height="280">
 
 [![Build Status](https://travis-ci.org/TadasBaltrusaitis/OpenFace.svg?branch=master)](https://travis-ci.org/TadasBaltrusaitis/OpenFace)
 [![Build status](https://ci.appveyor.com/api/projects/status/8msiklxfbhlnsmxp/branch/master?svg=true)](https://ci.appveyor.com/project/TadasBaltrusaitis/openface/branch/master)
