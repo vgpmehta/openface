@@ -37,7 +37,9 @@ before_install:
       cd ../..;
       wget https://github.com/opencv/opencv/archive/4.0.0.zip;
       unzip -qq 4.0.0.zip;
+      ls;
       cd opencv-4.0.0;
+      ls;
       mkdir build;
       cd build;
     fi
