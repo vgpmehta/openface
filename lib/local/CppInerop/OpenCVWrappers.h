@@ -42,11 +42,8 @@
 
 #pragma unmanaged
 
-#include <cv.h>
-#include <highgui.h>
-
-#include <opencv2/videoio/videoio.hpp>  // Video write
-#include <opencv2/videoio/videoio_c.h>  // Video write
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 #pragma managed
 
@@ -212,7 +209,7 @@ namespace OpenCVWrappers {
 			msclr::interop::marshal_context context;
 			std::string location_std_string = context.marshal_as<std::string>(location);
 
-			vc = new cv::VideoWriter(location_std_string, CV_FOURCC('D', 'I', 'V', 'X'), fps, cv::Size(width, height), colour);
+			vc = new cv::VideoWriter(location_std_string, cv::VideoWriter::fourcc('D', 'I', 'V', 'X'), fps, cv::Size(width, height), colour);
 
 		}
 

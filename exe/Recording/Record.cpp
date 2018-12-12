@@ -43,8 +43,6 @@
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include <opencv2/videoio/videoio.hpp>  // Video write
-#include <opencv2/videoio/videoio_c.h>  // Video write
 
 #include <stdio.h>
 #include <time.h>
@@ -157,7 +155,7 @@ int main (int argc, char **argv)
 
 	string out_file = outroot + outfile;
 	// saving the videos
-	cv::VideoWriter video_writer(out_file, CV_FOURCC('D','I','V','X'), 30, img.size(), true);
+	cv::VideoWriter video_writer(out_file, cv::VideoWriter::fourcc('D','I','V','X'), 30, img.size(), true);
 
 	ofstream outlog;
 	outlog.open((outroot + outfile + ".log").c_str(), ios_base::out);
