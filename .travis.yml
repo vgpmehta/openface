@@ -69,7 +69,9 @@ before_install:
       brew install tbb;
       brew install openblas;
       brew install dlib;
-      brew install opencv3;
+      brew install harfbuzz;
+      brew install glog;
+      brew install hybridgroup/tools/opencv;
     fi
   
 script:
