@@ -44,7 +44,7 @@ RUN apt-get update && apt-get install -qq -y \
     libboost-all-dev wget unzip && \
     rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install setuptools flask google-cloud numpy
+RUN pip3 install setuptools
 
 RUN cd ${BUILD_DIR} && unzip 3.4.0.zip && \
     cd opencv-3.4.0 && \
