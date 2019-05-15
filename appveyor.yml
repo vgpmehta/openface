@@ -2,6 +2,7 @@ version: 1.0.{build}
 branches:
   only:
   - develop
+  - feature/opencv4
   - master
 max_jobs: 4  
 configuration:
