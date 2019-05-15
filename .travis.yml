@@ -76,6 +76,7 @@ before_install:
       brew install harfbuzz;
       brew install glog;
       brew install hybridgroup/tools/opencv;
+      brew switch ilmbase 2.2.23
     fi
   
 script:
