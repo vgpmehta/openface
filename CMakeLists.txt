@@ -1,4 +1,6 @@
 cmake_minimum_required (VERSION 3.2)
+set(CMAKE_CXX_STANDARD 17)
+
 project(OpenFace VERSION 2.0.2)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/)
@@ -27,7 +29,7 @@ else()
     MESSAGE("  OpenBLAS_INCLUDE: ${OpenBLAS_INCLUDE_DIR}")
 endif()
 
-find_package(OpenCV REQUIRED)
+find_package( OpenCV 4.0 REQUIRED COMPONENTS core imgproc calib3d highgui objdetect)
 if(${OpenCV_FOUND})
 	MESSAGE("OpenCV information:") 
 	MESSAGE("  OpenCV_INCLUDE_DIRS: ${OpenCV_INCLUDE_DIRS}") 
@@ -37,7 +39,7 @@ else()
     MESSAGE(FATAL_ERROR "OpenCV not found in the system.")
 endif()
 
-find_package( Boost 1.5.9 REQUIRED COMPONENTS filesystem system)
+find_package( Boost 1.5.9 COMPONENTS filesystem system)
 if(${Boost_FOUND})
 	MESSAGE("Boost information:") 
 	MESSAGE("  Boost_VERSION: ${Boost_VERSION}")
@@ -45,8 +47,9 @@ if(${Boost_FOUND})
 	MESSAGE("  Boost_LIBRARIES: ${Boost_LIBRARIES}") 
 	MESSAGE("  Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}") 
 else()
-    MESSAGE(FATAL_ERROR "Boost not found in the system.")
+    MESSAGE("Boost not found in the system.")
 endif()
+
 
 # Move LandmarkDetector model
 file(GLOB files "lib/local/LandmarkDetector/model/*.txt")
@@ -134,13 +137,11 @@ endforeach()
 
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
     execute_process(COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
-    if (GCC_VERSION VERSION_LESS 4.7)
-        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -msse -msse2 -msse3")
+    if (GCC_VERSION VERSION_LESS 8.0)
+		MESSAGE(FATAL_ERROR "Need a 8.0 or newer GCC compiler ${GCC_VERSION}") 
     else ()
-        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -msse -msse2 -msse3")
+        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse -msse2 -msse3")
     endif ()
-else ()
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -msse -msse2 -msse3")
 endif ()
 
 # dlib

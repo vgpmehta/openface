@@ -36,10 +36,6 @@
 
 #include "LandmarkDetectorParameters.h"
 
-// Boost includes
-#include <filesystem.hpp>
-#include <filesystem/fstream.hpp>
-
 // System includes
 #include <sstream>
 #include <iostream>
@@ -48,8 +44,6 @@
 #ifndef CONFIG_DIR
 #define CONFIG_DIR "~"
 #endif
-
-using namespace std;
 
 using namespace LandmarkDetector;
 
@@ -61,13 +55,13 @@ FaceModelParameters::FaceModelParameters()
 
 }
 
-FaceModelParameters::FaceModelParameters(vector<string> &arguments)
+FaceModelParameters::FaceModelParameters(std::vector<std::string> &arguments)
 {
 	// initialise the default values
 	init();
 
 	// First element is reserved for the executable location (useful for finding relative model locs)
-	boost::filesystem::path root = boost::filesystem::path(arguments[0]).parent_path();
+	fs::path root = fs::path(arguments[0]).parent_path();
 
 	bool* valid = new bool[arguments.size()];
 	valid[0] = true;
@@ -78,7 +72,7 @@ FaceModelParameters::FaceModelParameters(vector<string> &arguments)
 
 		if (arguments[i].compare("-mloc") == 0)
 		{
-			string model_loc = arguments[i + 1];
+			std::string model_loc = arguments[i + 1];
 			model_location = model_loc;
 			valid[i] = false;
 			valid[i + 1] = false;
@@ -87,7 +81,7 @@ FaceModelParameters::FaceModelParameters(vector<string> &arguments)
 		}
 		if (arguments[i].compare("-fdloc") ==0)
 		{
-			string face_detector_loc = arguments[i + 1];
+			std::string face_detector_loc = arguments[i + 1];
 			haar_face_detector_location = face_detector_loc;
 			curr_face_detector = HAAR_DETECTOR;
 			valid[i] = false;
@@ -96,7 +90,7 @@ FaceModelParameters::FaceModelParameters(vector<string> &arguments)
 		}
 		if (arguments[i].compare("-sigma") == 0)
 		{
-			stringstream data(arguments[i + 1]);
+			std::stringstream data(arguments[i + 1]);
 			data >> sigma;
 			valid[i] = false;
 			valid[i + 1] = false;
@@ -104,7 +98,7 @@ FaceModelParameters::FaceModelParameters(vector<string> &arguments)
 		}
 		else if (arguments[i].compare("-w_reg") == 0)
 		{
-			stringstream data(arguments[i + 1]);
+			std::stringstream data(arguments[i + 1]);
 			data >> weight_factor;
 			valid[i] = false;
 			valid[i + 1] = false;
@@ -112,7 +106,7 @@ FaceModelParameters::FaceModelParameters(vector<string> &arguments)
 		}
 		else if (arguments[i].compare("-reg") == 0)
 		{
-			stringstream data(arguments[i + 1]);
+			std::stringstream data(arguments[i + 1]);
 			data >> reg_factor;
 			valid[i] = false;
 			valid[i + 1] = false;
@@ -121,7 +115,7 @@ FaceModelParameters::FaceModelParameters(vector<string> &arguments)
 		else if (arguments[i].compare("-multi_view") == 0)
 		{
 
-			stringstream data(arguments[i + 1]);
+			std::stringstream data(arguments[i + 1]);
 			int m_view;
 			data >> m_view;
 
@@ -132,7 +126,7 @@ FaceModelParameters::FaceModelParameters(vector<string> &arguments)
 		}
 		else if (arguments[i].compare("-validate_detections") == 0)
 		{
-			stringstream data(arguments[i + 1]);
+			std::stringstream data(arguments[i + 1]);
 			int v_det;
 			data >> v_det;
 
@@ -143,7 +137,7 @@ FaceModelParameters::FaceModelParameters(vector<string> &arguments)
 		}
 		else if (arguments[i].compare("-n_iter") == 0)
 		{
-			stringstream data(arguments[i + 1]);
+			std::stringstream data(arguments[i + 1]);
 			data >> num_optimisation_iteration;
 
 			valid[i] = false;
@@ -153,7 +147,7 @@ FaceModelParameters::FaceModelParameters(vector<string> &arguments)
 		else if (arguments[i].compare("-wild") == 0)
 		{
 			// For in the wild fitting these parameters are suitable
-			window_sizes_init = vector<int>(4);
+			window_sizes_init = std::vector<int>(4);
 			window_sizes_init[0] = 15; window_sizes_init[1] = 13; window_sizes_init[2] = 11; window_sizes_init[3] = 11;
 
 			sigma = 1.25;
@@ -182,17 +176,17 @@ FaceModelParameters::FaceModelParameters(vector<string> &arguments)
 
 	// Make sure model_location is valid
 	// First check working directory, then the executable's directory, then the config path set by the build process.
-	boost::filesystem::path config_path = boost::filesystem::path(CONFIG_DIR);
-	boost::filesystem::path model_path = boost::filesystem::path(model_location);
-	if (boost::filesystem::exists(model_path))
+	fs::path config_path = fs::path(CONFIG_DIR);
+	fs::path model_path = fs::path(model_location);
+	if (fs::exists(model_path))
 	{
 		model_location = model_path.string();
 	}
-	else if (boost::filesystem::exists(root/model_path))
+	else if (fs::exists(root/model_path))
 	{
 		model_location = (root/model_path).string();
 	}
-	else if (boost::filesystem::exists(config_path/model_path))
+	else if (fs::exists(config_path/model_path))
 	{
 		model_location = (config_path/model_path).string();
 	}
@@ -218,16 +212,16 @@ FaceModelParameters::FaceModelParameters(vector<string> &arguments)
 
 	// Make sure face detector location is valid
 	// First check working directory, then the executable's directory, then the config path set by the build process.
-	model_path = boost::filesystem::path(haar_face_detector_location);
-	if (boost::filesystem::exists(model_path))
+	model_path = fs::path(haar_face_detector_location);
+	if (fs::exists(model_path))
 	{
 		haar_face_detector_location = model_path.string();
 	}
-	else if (boost::filesystem::exists(root / model_path))
+	else if (fs::exists(root / model_path))
 	{
 		haar_face_detector_location = (root / model_path).string();
 	}
-	else if (boost::filesystem::exists(config_path / model_path))
+	else if (fs::exists(config_path / model_path))
 	{
 		haar_face_detector_location = (config_path / model_path).string();
 	}
@@ -238,16 +232,16 @@ FaceModelParameters::FaceModelParameters(vector<string> &arguments)
 
 	// Make sure face detector location is valid
 	// First check working directory, then the executable's directory, then the config path set by the build process.
-	model_path = boost::filesystem::path(mtcnn_face_detector_location);
-	if (boost::filesystem::exists(model_path))
+	model_path = fs::path(mtcnn_face_detector_location);
+	if (fs::exists(model_path))
 	{
 		mtcnn_face_detector_location = model_path.string();
 	}
-	else if (boost::filesystem::exists(root / model_path))
+	else if (fs::exists(root / model_path))
 	{
 		mtcnn_face_detector_location = (root / model_path).string();
 	}
-	else if (boost::filesystem::exists(config_path / model_path))
+	else if (fs::exists(config_path / model_path))
 	{
 		mtcnn_face_detector_location = (config_path / model_path).string();
 	}
@@ -262,19 +256,19 @@ void FaceModelParameters::check_model_path(const std::string& root)
 {
 	// Make sure model_location is valid
 	// First check working directory, then the executable's directory, then the config path set by the build process.
-	boost::filesystem::path config_path = boost::filesystem::path(CONFIG_DIR);
-	boost::filesystem::path model_path = boost::filesystem::path(model_location);
-	boost::filesystem::path root_path = boost::filesystem::path(root);
+	fs::path config_path = fs::path(CONFIG_DIR);
+	fs::path model_path = fs::path(model_location);
+	fs::path root_path = fs::path(root);
 
-	if (boost::filesystem::exists(model_path))
+	if (fs::exists(model_path))
 	{
 		model_location = model_path.string();
 	}
-	else if (boost::filesystem::exists(root_path / model_path))
+	else if (fs::exists(root_path / model_path))
 	{
 		model_location = (root_path / model_path).string();
 	}
-	else if (boost::filesystem::exists(config_path / model_path))
+	else if (fs::exists(config_path / model_path))
 	{
 		model_location = (config_path / model_path).string();
 	}
@@ -299,8 +293,8 @@ void FaceModelParameters::init()
 	// Refining parameters by default
 	refine_parameters = true;
 
-	window_sizes_small = vector<int>(4);
-	window_sizes_init = vector<int>(4);
+	window_sizes_small = std::vector<int>(4);
+	window_sizes_init = std::vector<int>(4);
 
 	// For fast tracking
 	window_sizes_small[0] = 0;

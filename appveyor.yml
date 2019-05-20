@@ -4,6 +4,7 @@ branches:
   - develop
   - feature/opencv4
   - master
+  - feature/boost_removal
 max_jobs: 4  
 configuration:
 - Release

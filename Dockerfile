@@ -1,4 +1,4 @@
-FROM ubuntu:14.04 as build
+FROM ubuntu:16.04 as build
 
 LABEL maintainer="Edgar Aroutiounian <edgar.factorial@gmail.com>"
 
@@ -36,13 +36,15 @@ RUN mkdir ${BUILD_DIR}
 ADD https://github.com/opencv/opencv/archive/3.4.0.zip ${BUILD_DIR}
 
 RUN apt-get update && apt-get install -qq -y \
-    curl build-essential llvm clang-3.7 libc++-dev \
+    curl build-essential llvm clang-3.7 libc++-dev python3 python3-pip\
     libc++abi-dev cmake libopenblas-dev liblapack-dev git libgtk2.0-dev \
     pkg-config libavcodec-dev libavformat-dev libswscale-dev \
     python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev \
     libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev checkinstall \
     libboost-all-dev wget unzip && \
     rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install setuptools
 
 RUN cd ${BUILD_DIR} && unzip 3.4.0.zip && \
     cd opencv-3.4.0 && \
@@ -54,6 +56,17 @@ RUN cd ${BUILD_DIR} && unzip 3.4.0.zip && \
     -D BUILD_SHARED_LIBS=OFF .. && \
     make -j4 && \
     make install
+    
+RUN wget http://dlib.net/files/dlib-19.13.tar.bz2 && \
+    tar xvf dlib-19.13.tar.bz2 && \
+    cd dlib-19.13/ && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    cmake --build . --config Release && \
+    make install && \
+    ldconfig && \
+    cd ..
 
 RUN cd ${OPENFACE_DIR} && mkdir -p build && cd build && \
     cmake -D CMAKE_BUILD_TYPE=RELEASE .. && \
