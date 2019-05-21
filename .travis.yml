@@ -73,13 +73,7 @@ before_install:
       brew install tbb;
       brew install openblas;
       brew install dlib;
-      brew install jpeg;
-      brew install libpng;
-      brew install libtiff;
-      brew install openexr;
-      brew install harfbuzz;
-      brew install glog;
-      brew install hybridgroup/tools/opencv;
+      brew install opencv;
       cd ../;
     fi
   
