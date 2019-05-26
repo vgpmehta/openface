@@ -1,4 +1,4 @@
-# Download the models from the cloud (stored in Dropbox, OneDrive, and Google Drive)
+# Download the models from the cloud (stored in Dropbox and OneDrive)
 
 # Determine correct path to the model files
 if([System.IO.Directory]::Exists( (Join-Path (Get-Location) 'lib') ))
