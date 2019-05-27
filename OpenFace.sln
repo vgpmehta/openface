@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
+# Visual Studio 17
 VisualStudioVersion = 15.8.2
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LandmarkDetector", "lib\local\LandmarkDetector\LandmarkDetector.vcxproj", "{BDC1D107-DE17-4705-8E7B-CDDE8BFB2BF8}"
@@ -178,5 +178,8 @@ Global
 		{A4760F41-2B1F-4144-B7B2-62785AFFE79B} = {E59CF005-539F-484F-9AA6-9F08AC2DB31E}
 		{78196985-EE54-411F-822B-5A23EDF80642} = {652CCE53-4997-4B43-9A99-28D075199C99}
 		{50B7D4BF-E33B-41D0-AA89-76BBA57BF5CC} = {652CCE53-4997-4B43-9A99-28D075199C99}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {228609CD-6688-47E7-8D5B-5EE684F8A7A1}
 	EndGlobalSection
 EndGlobal
