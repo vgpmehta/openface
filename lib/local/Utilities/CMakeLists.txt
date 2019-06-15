@@ -17,7 +17,8 @@ SET(HEADERS
 	include/RecorderOpenFaceParameters.h
 	include/SequenceCapture.h
 	include/VisualizationUtils.h
-	include/Visualizer.h	
+	include/Visualizer.h
+	include/ConcurrentQueue.h
 )
 
 add_library( Utilities ${SOURCE} ${HEADERS})
