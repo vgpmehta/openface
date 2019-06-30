@@ -33,7 +33,7 @@ sudo apt-get -y update
 sudo apt-get -y install gcc-8 g++-8
 
 
-sudo apt-get -y install cmake 3.10
+sudo apt-get -y install cmake=3.10
 sudo apt-get -y install zip
 sudo apt-get -y install libopenblas-dev liblapack-dev
 sudo apt-get -y install libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev
