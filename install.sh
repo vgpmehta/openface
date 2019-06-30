@@ -24,14 +24,16 @@ fi
 echo "Installing Essential dependencies..."
 
 # If we're not on 18.04
+sudo apt-get -y update
+
 if [[ `lsb_release -rs` != "18.04" ]]
   then   
     echo "Adding ppa:ubuntu-toolchain-r/test apt-repository "
     sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+    sudo apt-get -y update
 fi
 
 sudo apt-get -y install build-essential
-sudo apt-get -y update
 sudo apt-get -y install gcc-8 g++-8
 
 
