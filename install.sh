@@ -71,7 +71,7 @@ echo "dlib installed"
 echo "Installing OpenFace..."
 mkdir -p build
 cd build
-cmake -D CMAKE_BUILD_TYPE=RELEASE ..
+cmake -D CMAKE_CXX_COMPILER=g++-8 -D CMAKE_C_COMPILER=gcc-8 -D CMAKE_BUILD_TYPE=RELEASE ..
 make
 cd ..
 echo "OpenFace successfully installed."
