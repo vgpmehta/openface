@@ -2,15 +2,10 @@
 #==============================================================================
 # Title: install.sh
 # Description: Install everything necessary for OpenFace to compile.
-# Author: Daniyal Shahrokhian <daniyal@kth.se>
-# Date: 20170428
-# Version : 1.02
+# Author: Daniyal Shahrokhian <daniyal@kth.se>, Tadas Baltrusaitis <tadyla@gmail.com>
+# Date: 20190630
+# Version : 1.03
 # Usage: bash install.sh
-# NOTES: There are certain steps to be taken in the system before installing 
-#        via this script (refer to README): Run 
-#        `sudo gedit /etc/apt/sources.list` and change the line 
-#        `deb http://us.archive.ubuntu.com/ubuntu/ xenial main restricted` to 
-#        `deb http://us.archive.ubuntu.com/ubuntu/ xenial main universe`
 #==============================================================================
 
 # Exit script if any command fails
@@ -38,7 +33,7 @@ sudo apt-get -y update
 sudo apt-get -y install gcc-8 g++-8
 
 
-sudo apt-get -y install cmake
+sudo apt-get -y install cmake 3.10
 sudo apt-get -y install zip
 sudo apt-get -y install libopenblas-dev liblapack-dev
 sudo apt-get -y install libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev
