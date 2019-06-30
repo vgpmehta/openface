@@ -26,8 +26,8 @@ fi
 # Essential Dependencies
 echo "Installing Essential dependencies..."
 sudo apt-get -y update
-sudo apt-get -y install g++-8
 sudo apt-get -y install build-essential
+sudo apt-get -y install g++-8
 sudo apt-get -y install cmake
 sudo apt-get -y install zip
 sudo apt-get -y install libopenblas-dev liblapack-dev
