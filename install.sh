@@ -47,8 +47,7 @@ if [[ `lsb_release -rs` != "18.04" ]]; then
   make -j4
   sudo make install
   cd ../..
-  rm cmake-3.10.1.tar.gz
-  sudo rm -r cmake-3.10.1
+  sudo rm -r cmake_tmp
 else
   sudo apt-get -y install cmake
 fi
