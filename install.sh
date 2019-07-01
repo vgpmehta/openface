@@ -41,7 +41,7 @@ if [[ `lsb_release -rs` != "18.04" ]]; then
   mkdir -p cmake_tmp
   cd cmake_tmp
   wget https://cmake.org/files/v3.10/cmake-3.10.1.tar.gz
-  tar -xzvf cmake-3.10.1.tar.gz -qq
+  tar -xzvf cmake-3.10.1.tar.gz
   cd cmake-3.10.1/
   ./bootstrap
   make -j4
