@@ -38,6 +38,8 @@ sudo apt-get -y install gcc-8 g++-8
 
 # Ubuntu 16.04 does not have newest CMake so need to build it manually
 if [[ `lsb_release -rs` != "18.04" ]]; then   
+  sudo apt-get --purge remove cmake-qt-gui -y
+  sudo apt-get --purge remove cmake -y
   mkdir -p cmake_tmp
   cd cmake_tmp
   wget https://cmake.org/files/v3.10/cmake-3.10.1.tar.gz

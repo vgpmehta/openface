@@ -42,16 +42,16 @@
 
 // Filesystem stuff
 // It can either be in std filesystem (C++17), or in experimental/filesystem (partial C++17 support) or in boost
-#if __has_include(<filesystem>)
+#if __has_include(<boost/filesystem.hpp>)
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
+namespace fs = boost::filesystem;
+#elif __has_include(<filesystem>)
 #include <filesystem>
 namespace fs = std::filesystem;
 #elif __has_include(<experimental/filesystem>)
 #include <experimental/filesystem>
 namespace fs = std::filesystem;
-#else
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
-namespace fs = boost::filesystem;
 #endif
 
 #endif
