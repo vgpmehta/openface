@@ -32,6 +32,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+// tuned by frankiezafe, http://polymorph.cool
 
 // FeatureExtraction.cpp : Defines the entry point for the feature extraction console application.
 
@@ -281,6 +282,11 @@ struct OpenfaceV3 {
 		y = src.y;
 		z = src.z;
 	}
+	void set( const float& vx, const float& vy, const float& vz ) {
+		x = vx;
+		y = vy;
+		z = vz;
+	}
 }
 
 struct OpenfaceFrame {
@@ -292,6 +298,20 @@ struct OpenfaceFrame {
 	std::vector<OpenfaceV3> landmarks;
 	OpenfaceFrame(): updated(false) {
 		landmarks.resize(LANDMARKS_NUM);
+	}
+	void print() {
+		std::cout <<
+			"OpenfaceFrame" << std::endl <<
+			"\t" << "updated: " << updated << std::endl <<
+			"\t" << "gaze_0: " << gaze_0.x << ", "  << gaze_0.y << ", "  << gaze_0.z << std::endl <<
+			"\t" << "gaze_1: " << gaze_1.x << ", "  << gaze_1.y << ", "  << gaze_1.z << std::endl <<
+			"\t" << "head_rot: " << head_rot.x << ", "  << head_rot.y << ", "  << head_rot.z << std::endl <<
+			"\t" << "head_pos: " << head_pos.x << ", "  << head_pos.y << ", "  << head_pos.z << std::endl;
+		for ( int i = 0; i < LANDMARKS_NUM; ++i ) {
+			std::cout << "\tlandmark [" << i < "] : " <<
+				landmarks[i].x << ", "  << landmarks[i].y << ", "  << landmarks[i].z << std::endl;
+		}
+			
 	}
 }; 
 
@@ -346,6 +366,11 @@ public:
 		
 		frame.gaze_0 = rec.get_gaze_direction(0);
 		frame.gaze_1 = rec.get_gaze_direction(1);
+		
+		cv::Vec6f h = rec.get_head_pose();
+		frame.head_rot.set( h.at(0), h.at(1), h.at(2) )
+		frame.head_pos.set( h.at(3), h.at(4), h.at(5) )
+		
 		const cv::Mat_<float>& l3d = rec.get_landmarks_3D();
 		for ( int c = 0;  c < s.width; ++c ) {
 			landmarks[i].x = l3d.at( c,0 );
@@ -353,6 +378,7 @@ public:
 			landmarks[i].z = l3d.at( c,2 );
 		}
 		frame.updated = false;
+		frame.print();
 		
 	}
 	
@@ -368,7 +394,7 @@ public:
 		return worker != 0;
 	}
 	
-	inline bool data_updated() const {
+	inline bool new_frame() const {
 		boost::unique_lock< boost::shared_mutex > lock(_access);
 		return frame.updated;
 	}
@@ -474,7 +500,7 @@ BOOST_PYTHON_MODULE(PyOpenfaceVideo) {
     	.def("start", &OpenfaceVideo::start)
     	.def("stop", &OpenfaceVideo::stop)
     	.def("is_running", &OpenfaceVideo::is_running)
-    	.def("data_updated", &OpenfaceVideo::data_updated)
+    	.def("new_frame", &OpenfaceVideo::data_updated)
     	.def("get_frame", &OpenfaceVideo::get_frame);
 	
 }
