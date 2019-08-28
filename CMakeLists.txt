@@ -39,7 +39,7 @@ else()
     MESSAGE(FATAL_ERROR "OpenCV not found in the system.")
 endif()
 
-find_package( Boost 1.5.9 COMPONENTS filesystem system)
+find_package( Boost 1.5.9 COMPONENTS filesystem system thread python REQUIRED)
 if(${Boost_FOUND})
 	MESSAGE("Boost information:") 
 	MESSAGE("  Boost_VERSION: ${Boost_VERSION}")
@@ -50,6 +50,7 @@ else()
     MESSAGE("Boost not found in the system.")
 endif()
 
+find_package(PythonLibs REQUIRED)
 
 # Move LandmarkDetector model
 file(GLOB files "lib/local/LandmarkDetector/model/*.txt")
@@ -245,3 +246,4 @@ add_subdirectory(exe/FaceLandmarkImg)
 add_subdirectory(exe/FaceLandmarkVid)
 add_subdirectory(exe/FaceLandmarkVidMulti)
 add_subdirectory(exe/FeatureExtraction)
+add_subdirectory(exe/FeatureExtractionPython)

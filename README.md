@@ -1,7 +1,16 @@
 # OpenFace 2.2.0: a facial behavior analysis toolkit
 
-[![Build Status](https://travis-ci.org/TadasBaltrusaitis/OpenFace.svg?branch=master)](https://travis-ci.org/TadasBaltrusaitis/OpenFace)
-[![Build status](https://ci.appveyor.com/api/projects/status/8msiklxfbhlnsmxp/branch/master?svg=true)](https://ci.appveyor.com/project/TadasBaltrusaitis/openface/branch/master)
+*Modified version of [original repository](https://github.com/TadasBaltrusaitis/OpenFace) to allow usage of webcam feature extraction from python. This is NOT a stable version.* 
+
+See 'exe/FeatureExtractionPython' for code and launch 'build/bin/OpenfaceVideo'  
+
+requires python dev libs:
+
+```bash
+$ sudo apt-get install python-dev python3-dev 
+```
+
+## Description
 
 Over the past few years, there has been an increased interest in automatic facial behavior analysis
 and understanding. We present OpenFace – a tool intended for computer vision and machine learning
