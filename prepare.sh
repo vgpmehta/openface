@@ -62,7 +62,7 @@ sudo apt-get -y install zip
 sudo apt-get -y install libopenblas-dev liblapack-dev
 sudo apt-get -y install libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev
 sudo apt-get -y install libtbb2 libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev
-sudo apt-get -y install python-dev python3-dev 
+sudo apt-get -y install python3-dev python3-dev python3-pip python3-tk python3-lxml python3-six
 echo "Essential dependencies installed."
 
 # OpenCV Dependency
