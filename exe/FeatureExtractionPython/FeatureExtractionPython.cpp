@@ -392,10 +392,8 @@ struct OpenfaceFrame {
 		}
 		
 	}
-	
-	
-	
-}; 
+
+};
 
 class OpenfaceVideo {
 	
