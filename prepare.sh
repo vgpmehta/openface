@@ -1,14 +1,4 @@
 #!/bin/bash
-#==============================================================================
-# Title: install.sh
-# Description: Install everything necessary for OpenFace to compile. 
-# Will install all required dependencies, only use if you do not have the dependencies
-# already installed or if you don't mind specific versions of gcc,g++,cmake,opencv etc. installed
-# Author: Daniyal Shahrokhian <daniyal@kth.se>, Tadas Baltrusaitis <tadyla@gmail.com>
-# Date: 20190630
-# Version : 1.03
-# Usage: bash install.sh
-#==============================================================================
 
 # Exit script if any command fails
 set -e 
@@ -63,18 +53,25 @@ sudo apt-get -y install libopenblas-dev liblapack-dev
 sudo apt-get -y install libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev
 sudo apt-get -y install libtbb2 libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev
 sudo apt-get -y install python3-dev python3-dev python3-pip python3-tk python3-lxml python3-six
-echo "Essential dependencies installed."
+echo "######## Essential dependencies installed."
+
+# Install boost 1.71.0
+echo "######## Downloading Boost..."
+wget https://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.tar.bz2
+tar xf boost_1_71_0.tar.bz2
+rm -r boost_1_71_0.tar.bz2
+echo "######## Boost ready."
 
 # OpenCV Dependency
-echo "Downloading OpenCV..."
+echo "######## Downloading OpenCV..."
 wget https://github.com/opencv/opencv/archive/4.1.0.zip
 unzip 4.1.0.zip
 rm -r 4.1.0.zip
-echo "OpenCV ready."
+echo "######## OpenCV ready."
 
 # dlib dependecy
-echo "Downloading dlib"
+echo "######## Downloading dlib"
 wget http://dlib.net/files/dlib-19.13.tar.bz2;
 tar xf dlib-19.13.tar.bz2;
 rm -r dlib-19.13.tar.bz2
-echo "dlib ready"
+echo "######## dlib ready"

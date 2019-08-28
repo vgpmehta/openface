@@ -50,7 +50,7 @@ else()
     MESSAGE("Python3 not found in the system.")
 endif()
 
-find_package( Boost 1.5.9 COMPONENTS filesystem system thread python REQUIRED)
+find_package( Boost 1.71.0 COMPONENTS filesystem system thread python REQUIRED)
 if(${Boost_FOUND})
 	MESSAGE("Boost information:") 
 	MESSAGE("  Boost_VERSION: ${Boost_VERSION}")
