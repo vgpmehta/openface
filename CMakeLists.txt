@@ -50,8 +50,6 @@ else()
     MESSAGE("Boost not found in the system.")
 endif()
 
-find_package(PythonLibs REQUIRED)
-
 # Move LandmarkDetector model
 file(GLOB files "lib/local/LandmarkDetector/model/*.txt")
 foreach(file ${files})

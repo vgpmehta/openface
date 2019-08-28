@@ -1,10 +1,4 @@
 # Local libraries
-#set(Python_ADDITIONAL_VERSIONS 3.5) 
-#find_package(PythonLibs 3 REQUIRED)
-#find_package(Boost REQUIRED COMPONENTS python-py35)
-#set(PYTHON_DOT_VERSION 3.5)
-#set(PYTHON_INCLUDE /usr/include/python3.5)
-#set(PYTHON_LIBRARY /usr/lib/python3.5/config-x86_64-linux-gnu)
 
 set(Python_ADDITIONAL_VERSIONS 3.5)
 find_package(PythonLibs 3 REQUIRED)
