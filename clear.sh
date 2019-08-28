@@ -10,11 +10,11 @@ if [ $# -ne 0 ]
     exit 1
 fi
 
-rm -r boost_1_71_0.tar.bz2*
-rm -r 4.1.0.zip*
-rm -r dlib-19.13.tar.bz2*
+rm -rf boost_1_71_0.tar.bz2*
+rm -rf 4.1.0.zip*
+rm -rf dlib-19.13.tar.bz2*
 
-rm -r cmake_tmp
-rm -r boost_1_71_0
-rm -r dlib-19.13
-rm -r opencv-4.1.0
+rm -rf cmake_tmp
+rm -rf boost_1_71_0
+rm -rf dlib-19.13
+rm -rf opencv-4.1.0
