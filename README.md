@@ -8,8 +8,11 @@ If it is your first install, just run `install.sh`.
 
 If you need to debug or change configuration, use the scripts below:
 
-- run `chmod +x prepare.sh && ./prepare.sh` : download all dependencies and install system libs
-- run `chmod +x compile.sh && ./compile.sh` : compile everything
+- `bash download_models.sh` : download and install models
+- `bash prepare.sh` : download all dependencies and install system libs
+- `bash compile.sh` : compile everything
+
+For a hard reset of the folder, use `bash clear.sh` to remove boost, opencv, dlib and build folders.
 
 ## Description
 
