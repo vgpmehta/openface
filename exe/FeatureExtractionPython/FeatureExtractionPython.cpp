@@ -76,6 +76,10 @@ static void printErrorAndAbort(const std::string & error)
 #define FATAL_STREAM( stream ) \
 printErrorAndAbort( std::string( "Fatal error: " ) + stream )
 
+#define LANDMARKS_NUM 68
+
+boost::shared_mutex _access;
+
 int OpenfaceVideoWorker( 
 	std::vector<std::string>& args, 
 	const bool& running,
@@ -267,6 +271,30 @@ int OpenfaceVideoWorker(
 	
 }
 
+struct OpenfaceV3 {
+	float x;
+	float y;
+	float z;
+	OpenfaceV3() : x(0), y(0), z(0) {}
+	void operator = ( const cv::Point3f& src ) {
+		x = src.x;
+		y = src.y;
+		z = src.z;
+	}
+}
+
+struct OpenfaceFrame {
+	bool updated;
+	OpenfaceV3 gaze_0;
+	OpenfaceV3 gaze_1;
+	OpenfaceV3 head_rot;
+	OpenfaceV3 head_pos;
+	std::vector<OpenfaceV3> landmarks;
+	OpenfaceFrame(): updated(false) {
+		landmarks.resize(LANDMARKS_NUM);
+	}
+}; 
+
 class OpenfaceVideo {
 	
 public:
@@ -306,13 +334,25 @@ public:
 			)
 		);
 		openfacevideo_threads.add_thread(worker);
+		
 	}
 	
 	void new_frame( Utilities::RecorderOpenFace& rec ) {
 		
-		const cv::Mat_<float>& l3d = rec.get_landmarks_3D();
+		boost::unique_lock< boost::shared_mutex > lock(_access);
+		
 		cv::Size s = l3d.size();
 		std::cout << "new_frame " << rec.GetCSVFile() << ", rows: " << s.height << ", cols: " << s.width << std::endl;
+		
+		frame.gaze_0 = rec.get_gaze_direction(0);
+		frame.gaze_1 = rec.get_gaze_direction(1);
+		const cv::Mat_<float>& l3d = rec.get_landmarks_3D();
+		for ( int c = 0;  c < s.width; ++c ) {
+			landmarks[i].x = l3d.at( c,0 );
+			landmarks[i].y = l3d.at( c,1 );
+			landmarks[i].z = l3d.at( c,2 );
+		}
+		frame.updated = false;
 		
 	}
 	
@@ -326,6 +366,17 @@ public:
 	
 	inline bool is_running() const {
 		return worker != 0;
+	}
+	
+	inline bool data_updated() const {
+		boost::unique_lock< boost::shared_mutex > lock(_access);
+		return frame.updated;
+	}
+	
+	inline const OpenfaceFrame& get_frame() {
+		boost::unique_lock< boost::shared_mutex > lock(_access);
+		frame.updated = false;
+		return frame
 	}
 
 private:
@@ -350,10 +401,83 @@ private:
 	
 	std::vector<std::string> arguments;
 	bool thread_running;
+	bool _data_updated;
 	boost::thread_group openfacevideo_threads;
 	boost::thread* worker;
 	
+	OpenfaceFrame frame;
+	
 };
+
+class with_gil {
+public:
+	with_gil()  { state_ = PyGILState_Ensure(); }
+	~with_gil() { PyGILState_Release(state_);   }
+	with_gil(const with_gil&)            = delete;
+	with_gil& operator=(const with_gil&) = delete;
+private:
+	PyGILState_STATE state_;
+};
+
+class py_callable {
+public:
+	
+	/// @brief Constructor that assumes the caller has the GIL locked.
+	py_callable(const boost::python::object& object) {
+		with_gil gil;
+		object_.reset(
+			// GIL locked, so it is safe to copy.
+			new boost::python::object{object},
+			// Use a custom deleter to hold GIL when the object is deleted.
+			[](boost::python::object* object) {
+				with_gil gil;
+				delete object;
+			});
+	}
+
+	// Use default copy-constructor and assignment-operator.
+	py_callable(const py_callable&) = default;
+	py_callable& operator=(const py_callable&) = default;
+
+	template <typename ...Args>
+	void operator()(Args... args) {
+		// Lock the GIL as the python object is going to be invoked.
+		with_gil gil;
+		(*object_)(std::forward<Args>(args)...);
+	}
+	
+private:
+	std::shared_ptr<boost::python::object> object_;
+	
+};
+
+BOOST_PYTHON_MODULE(PyOpenfaceVideo) {
+	
+    using namespace boost::python;
+	
+	class_<OpenfaceV3>("OpenfaceV3")
+        .def_read("x", &OpenfaceV3::x)
+        .def_read("y", &OpenfaceV3::y)
+        .def_read("z", &OpenfaceV3::z);
+	
+    class_<std::vector<OpenfaceV3>>("OpenfaceV3Vector")
+        .def(vector_indexing_suite<std::vector<OpenfaceV3>>());
+	
+	class_<OpenfaceV3>("OpenfaceFrame")
+        .def_read("gaze_0", &OpenfaceV3::gaze_0)
+        .def_read("gaze_1", &OpenfaceV3::gaze_1)
+        .def_read("head_rot", &OpenfaceV3::head_rot)
+        .def_read("head_pos", &OpenfaceV3::head_pos)
+        .def_read("landmarks", &OpenfaceV3::landmarks);
+	
+	class_<OpenfaceVideo>("OpenfaceVideo")
+    	.def("start", &OpenfaceVideo::start)
+    	.def("stop", &OpenfaceVideo::stop)
+    	.def("is_running", &OpenfaceVideo::is_running)
+    	.def("data_updated", &OpenfaceVideo::data_updated)
+    	.def("get_frame", &OpenfaceVideo::get_frame);
+	
+}
 
 int main(int argc, char **argv) {
 
