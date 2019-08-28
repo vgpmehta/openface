@@ -381,7 +381,6 @@ struct OpenfaceFrame {
 	}
 	
 	void operator = ( const OpenfaceFrame& src ) {
-		
 		updated = src.updated;
 		gaze_0 = src.gaze_0;
 		gaze_1 = src.gaze_1;
@@ -390,7 +389,6 @@ struct OpenfaceFrame {
 		for ( int i = 0; i < LANDMARKS_NUM; ++i ) {
 			landmarks[i] = src.landmarks[i];
 		}
-		
 	}
 
 };
@@ -414,14 +412,35 @@ public:
 		for (int i = 0; i < argc; ++i) {
 			arguments.push_back(std::string(argv[i]));
 		}
-		append_argument( "-2Dfp", "" );
+		//append_argument( "-2Dfp", "" );
 		append_argument( "-3Dfp", "" );
 		append_argument( "-pose", "" );
 		append_argument( "-gaze", "" );
 		append_argument( "-device", "0" );
 	}
+
+	void set_device( int d ) {
+		
+		stop();
+		
+		if ( arguments.empty() ) {
+			load_arguments(0,0);
+		}
+		for ( int i = 0, imax = arguments.size(); i < imax; ++i ) {
+			if ( arguments[i].compare( "-device" ) == 0 ) {
+				arguments[i+1] = std::to_string(d);
+				return;
+			}
+		}
+		append_argument( "-device", std::to_string(d) );
+		
+	}
 	
 	bool start() {
+		
+		if ( arguments.empty() ) {
+			load_arguments(0,0);
+		}
 		
 		stop();
 		thread_running = true;		
@@ -585,6 +604,7 @@ BOOST_PYTHON_MODULE(PyOpenfaceVideo) {
         .def_readonly("landmarks", &OpenfaceFrame::landmarks);
 	
 	class_<OpenfaceVideo>("OpenfaceVideo")
+    	.add_property("set_device", &OpenfaceVideo::set_device)
     	.add_property("start", &OpenfaceVideo::start)
     	.add_property("stop", &OpenfaceVideo::stop)
     	.add_property("is_running", &OpenfaceVideo::is_running)
