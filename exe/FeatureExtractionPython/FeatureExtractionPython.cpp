@@ -309,7 +309,11 @@ public:
 	}
 	
 	void new_frame( Utilities::RecorderOpenFace& rec ) {
-		std::cout << "new_frame " << rec.GetCSVFile() << std::endl;
+		
+		const cv::Mat_<float>& l3d = rec.get_landmarks_3D();
+		cv::Size s = l3d.size();
+		std::cout << "new_frame " << rec.GetCSVFile() << ", rows: " << s.height << ", cols: " << s.width << std::endl;
+		
 	}
 	
 	void stop() {
