@@ -10,7 +10,8 @@ If you need to debug or change configuration, use the scripts below:
 
 - `bash download_models.sh` : download and install models
 - `bash prepare.sh` : download all dependencies and install system libs
-- `bash compile.sh` : compile everything
+- `bash compile_deps.sh` : compile boost, opencv & dlib
+- `bash compile_openface.sh` : compile openface
 
 For a hard reset of the folder, use `bash clear.sh` to remove boost, opencv, dlib and build folders.
 

@@ -113,3 +113,4 @@ opencv-4.1.0/*
 dlib-19.13.tar.bz2
 cmake_tmp/*
 boost_1_71_0/*
+processed/

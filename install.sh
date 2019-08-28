@@ -2,4 +2,5 @@
 
 bash download_models.sh
 bash prepare.sh
-bash compile.sh
+bash compile_deps.sh
+bash compile_openface.sh
