@@ -65,7 +65,7 @@ echo "Essential dependencies installed."
 echo "Downloading OpenCV..."
 wget https://github.com/opencv/opencv/archive/4.1.0.zip
 unzip 4.1.0.zip
-sudo rm -r opencv-4.1.0
+rm -r 4.1.0.zip
 echo "OpenCV ready."
 
 # dlib dependecy

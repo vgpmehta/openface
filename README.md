@@ -4,16 +4,12 @@
 
 part of the [ReVA-toolkit](https://github.com/numediart/ReVA-toolkit)
 
-requires python dev libs:
+If it is your first install, just run `install.sh`.
 
-```bash
-$ sudo apt-get install python-dev python3-dev 
-```
+If you need to debug or change configuration, use the scripts below:
 
-- run `chmod +x prepare.sh && ./prepare.sh` : this will download all dependencies and install system libs
-- run `chmod +x compile.sh && ./compile.sh` : this will compile everything
-
-[source](https://github.com/TadasBaltrusaitis/OpenFace/issues/23#issuecomment-229495315)
+- run `chmod +x prepare.sh && ./prepare.sh` : download all dependencies and install system libs
+- run `chmod +x compile.sh && ./compile.sh` : compile everything
 
 ## Description
 

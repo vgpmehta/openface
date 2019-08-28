@@ -39,7 +39,7 @@ mkdir -p build;
 cd build;
 echo "Installing dlib"
 cmake -D CMAKE_BUILD_TYPE=RELEASE -D DLIB_IN_PROJECT_BUILD=ON -D DLIB_USE_CUDA=OFF -D BUILD_SHARED_LIBS=ON ..
-make -j7
+make -j4
 sudo make install;
 sudo ldconfig;
 cd ../..;    
