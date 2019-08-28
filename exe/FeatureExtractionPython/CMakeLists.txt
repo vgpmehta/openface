@@ -1,4 +1,7 @@
 # Local libraries
+#set(Python_ADDITIONAL_VERSIONS 3.5) 
+#find_package(PythonLibs 3 REQUIRED) 
+
 include_directories(${PYTHON_INCLUDE_DIRS})
 link_directories(${PYTHON_LIBRARIES})
 include_directories(${LandmarkDetector_SOURCE_DIR}/include)
@@ -13,8 +16,8 @@ target_link_libraries(OpenfaceVideo ${PYTHON_LIBRARIES})
 install (TARGETS OpenfaceVideo DESTINATION bin)
 
 # LIBRARY
-add_library(PyOpenfaceVideo SHARED FeatureExtractionPython.cpp)
-set_property(TARGET PyOpenfaceVideo PROPERTY POSITION_INDEPENDENT_CODE ON)
+add_library(PyOpenfaceVideo STATIC FeatureExtractionPython.cpp)
+# set_property(TARGET PyOpenfaceVideo PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(PyOpenfaceVideo LandmarkDetector)
 target_link_libraries(PyOpenfaceVideo FaceAnalyser)
 target_link_libraries(PyOpenfaceVideo GazeAnalyser)
