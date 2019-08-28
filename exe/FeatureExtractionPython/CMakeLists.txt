@@ -14,6 +14,7 @@ install (TARGETS OpenfaceVideo DESTINATION bin)
 
 # LIBRARY
 add_library(PyOpenfaceVideo SHARED FeatureExtractionPython.cpp)
+set_property(TARGET PyOpenfaceVideo PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(PyOpenfaceVideo LandmarkDetector)
 target_link_libraries(PyOpenfaceVideo FaceAnalyser)
 target_link_libraries(PyOpenfaceVideo GazeAnalyser)
