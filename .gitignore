@@ -105,3 +105,8 @@ lib/local/CppInerop/Debug/
 
 # IDE-generated folders
 .idea
+
+4.1.0.zip
+dlib-19.13/*
+opencv-3.4.0/*
+opencv-4.1.0/*

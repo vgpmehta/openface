@@ -150,7 +150,6 @@ find_package(dlib 19.13)
 if(${dlib_FOUND})
     message("dlib information:")
     message("  dlib version: ${dlib_VERSION}")
-
     if (NOT TARGET dlib)
         add_library(dlib INTERFACE IMPORTED GLOBAL)
     endif()
