@@ -110,3 +110,5 @@ lib/local/CppInerop/Debug/
 dlib-19.13/*
 opencv-3.4.0/*
 opencv-4.1.0/*
+dlib-19.13.tar.bz2
+cmake_tmp/*

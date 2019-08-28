@@ -10,13 +10,10 @@ requires python dev libs:
 $ sudo apt-get install python-dev python3-dev 
 ```
 
-run `install.sh` (it will crash)
+- run `chmod +x prepare.sh && ./prepare.sh` : this will download all dependencies and install system libs
+- run `chmod +x compile.sh && ./compile.sh` : this will compile everything
 
-open **dlib-19.13/dlib/CMakeLists.txt**, locate **add_library(dlib_all_source_cpp STATIC all/source.cpp)** and change it to **add_library(dlib_all_source_cpp SHARED all/source.cpp)**
-
-run `recompile.sh`
-
-[soource](https://github.com/TadasBaltrusaitis/OpenFace/issues/23#issuecomment-229495315)
+[source](https://github.com/TadasBaltrusaitis/OpenFace/issues/23#issuecomment-229495315)
 
 ## Description
 
