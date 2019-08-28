@@ -58,6 +58,7 @@ sudo apt-get -y install zip
 sudo apt-get -y install libopenblas-dev liblapack-dev
 sudo apt-get -y install libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev
 sudo apt-get -y install libtbb2 libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev
+sudo apt-get -y python-dev python3-dev 
 echo "Essential dependencies installed."
 
 # OpenCV Dependency
@@ -72,7 +73,7 @@ cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D WITH_TBB
 make -j4
 sudo make install
 cd ../..
-rm 4.1.0.zip
+# rm 4.1.0.zip
 sudo rm -r opencv-4.1.0
 echo "OpenCV installed."
 

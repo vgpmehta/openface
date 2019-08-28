@@ -4,13 +4,19 @@
 
 part of the [ReVA-toolkit](https://github.com/numediart/ReVA-toolkit)
 
-See 'exe/FeatureExtractionPython' for code and launch 'build/bin/OpenfaceVideo'  
-
 requires python dev libs:
 
 ```bash
 $ sudo apt-get install python-dev python3-dev 
 ```
+
+run `install.sh` (it will crash)
+
+open **dlib-19.13/dlib/CMakeLists.txt**, locate **add_library(dlib_all_source_cpp STATIC all/source.cpp)** and change it to **add_library(dlib_all_source_cpp SHARED all/source.cpp)**
+
+run `recompile.sh`
+
+[soource](https://github.com/TadasBaltrusaitis/OpenFace/issues/23#issuecomment-229495315)
 
 ## Description
 
