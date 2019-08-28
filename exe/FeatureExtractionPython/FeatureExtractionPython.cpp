@@ -42,6 +42,7 @@
 #include <boost/date_time.hpp>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <unistd.h>
 
 // Local includes
@@ -273,32 +274,68 @@ int OpenfaceVideoWorker(
 }
 
 struct OpenfaceV3 {
+	
 	float x;
 	float y;
 	float z;
+	
 	OpenfaceV3() : x(0), y(0), z(0) {}
+	
+	OpenfaceV3( const OpenfaceV3& src ) {
+		(*this) = src;
+	}
+	
+	~OpenfaceV3() {}
+	
+	bool operator == ( const OpenfaceV3& src ) const {
+		return x == src.x && y == src.y && z == src.z;
+	}
+	
+	bool operator != ( const OpenfaceV3& src ) const {
+		return x != src.x || y != src.y || z != src.z;
+	}
+	
+	void operator = ( const OpenfaceV3& src ) {
+		x = src.x;
+		y = src.y;
+		z = src.z;
+	}
+	
 	void operator = ( const cv::Point3f& src ) {
 		x = src.x;
 		y = src.y;
 		z = src.z;
 	}
+	
 	void set( const float& vx, const float& vy, const float& vz ) {
 		x = vx;
 		y = vy;
 		z = vz;
 	}
-}
+	
+};
+
+typedef std::vector<OpenfaceV3> OpenfaceV3Vector;
 
 struct OpenfaceFrame {
+	
 	bool updated;
 	OpenfaceV3 gaze_0;
 	OpenfaceV3 gaze_1;
 	OpenfaceV3 head_rot;
 	OpenfaceV3 head_pos;
 	std::vector<OpenfaceV3> landmarks;
+	
 	OpenfaceFrame(): updated(false) {
 		landmarks.resize(LANDMARKS_NUM);
 	}
+	
+	OpenfaceFrame( const OpenfaceFrame& src ) {
+		(*this) = src;
+	}
+	
+	~OpenfaceFrame() {}
+	
 	void print() {
 		std::cout <<
 			"OpenfaceFrame" << std::endl <<
@@ -308,11 +345,56 @@ struct OpenfaceFrame {
 			"\t" << "head_rot: " << head_rot.x << ", "  << head_rot.y << ", "  << head_rot.z << std::endl <<
 			"\t" << "head_pos: " << head_pos.x << ", "  << head_pos.y << ", "  << head_pos.z << std::endl;
 		for ( int i = 0; i < LANDMARKS_NUM; ++i ) {
-			std::cout << "\tlandmark [" << i < "] : " <<
+			std::cout << "\tlandmark [" << i << "] : " <<
 				landmarks[i].x << ", "  << landmarks[i].y << ", "  << landmarks[i].z << std::endl;
 		}
-			
 	}
+	
+	bool operator == ( const OpenfaceFrame& src ) {
+		if ( 
+			gaze_0 != src.gaze_0 || 
+			gaze_1 != src.gaze_1 || 
+			head_rot != src.head_rot  || 
+			head_pos != src.head_pos
+		) { 
+			return false;
+		}
+		for ( int i = 0; i < LANDMARKS_NUM; ++i ) {
+			if ( landmarks[i] != src.landmarks[i] ) { return false; }
+		}
+		return true;
+	}
+	
+	bool operator != ( const OpenfaceFrame& src ) {
+		if ( 
+			gaze_0 != src.gaze_0 || 
+			gaze_1 != src.gaze_1 || 
+			head_rot != src.head_rot  || 
+			head_pos != src.head_pos
+		) { 
+			return true;
+		}
+		for ( int i = 0; i < LANDMARKS_NUM; ++i ) {
+			if ( landmarks[i] != src.landmarks[i] ) { return true; }
+		}
+		return false;
+	}
+	
+	void operator = ( const OpenfaceFrame& src ) {
+		
+		updated = src.updated;
+		gaze_0 = src.gaze_0;
+		gaze_1 = src.gaze_1;
+		head_rot = src.head_rot;
+		head_pos = src.head_pos;
+		for ( int i = 0; i < LANDMARKS_NUM; ++i ) {
+			landmarks[i] = src.landmarks[i];
+		}
+		
+	}
+	
+	
+	
 }; 
 
 class OpenfaceVideo {
@@ -320,6 +402,10 @@ class OpenfaceVideo {
 public:
 	
 	OpenfaceVideo() : worker(0) {}
+	
+	OpenfaceVideo( const OpenfaceVideo& src ) : worker(0) {
+		std::cout << "OpenfaceVideo copy cstr is not implemented" << std::endl;
+	}
 	
 	~OpenfaceVideo() {
 		// clean stop
@@ -337,7 +423,7 @@ public:
 		append_argument( "-device", "0" );
 	}
 	
-	void start() {
+	bool start() {
 		
 		stop();
 		thread_running = true;		
@@ -355,12 +441,15 @@ public:
 		);
 		openfacevideo_threads.add_thread(worker);
 		
+		return true;
+		
 	}
 	
 	void new_frame( Utilities::RecorderOpenFace& rec ) {
 		
 		boost::unique_lock< boost::shared_mutex > lock(_access);
 		
+		const cv::Mat_<float>& l3d = rec.get_landmarks_3D();
 		cv::Size s = l3d.size();
 		std::cout << "new_frame " << rec.GetCSVFile() << ", rows: " << s.height << ", cols: " << s.width << std::endl;
 		
@@ -368,41 +457,42 @@ public:
 		frame.gaze_1 = rec.get_gaze_direction(1);
 		
 		cv::Vec6f h = rec.get_head_pose();
-		frame.head_rot.set( h.at(0), h.at(1), h.at(2) )
-		frame.head_pos.set( h.at(3), h.at(4), h.at(5) )
+		frame.head_rot.set( h[0], h[1], h[2] );
+		frame.head_pos.set( h[3], h[4], h[5] );
 		
-		const cv::Mat_<float>& l3d = rec.get_landmarks_3D();
 		for ( int c = 0;  c < s.width; ++c ) {
-			landmarks[i].x = l3d.at( c,0 );
-			landmarks[i].y = l3d.at( c,1 );
-			landmarks[i].z = l3d.at( c,2 );
+			frame.landmarks[c].x = l3d.at<float>( c,0 );
+			frame.landmarks[c].y = l3d.at<float>( c,1 );
+			frame.landmarks[c].z = l3d.at<float>( c,2 );
 		}
 		frame.updated = false;
 		frame.print();
 		
 	}
 	
-	void stop() {
+	bool stop() {
 		if ( thread_running ) {
 			thread_running = false;
 			usleep( 1000 );
 			worker = 0;
+			return true;
 		}
+		return false;
 	}
 	
-	inline bool is_running() const {
+	bool is_running() const {
 		return worker != 0;
 	}
 	
-	inline bool new_frame() const {
+	bool has_frame() const {
 		boost::unique_lock< boost::shared_mutex > lock(_access);
 		return frame.updated;
 	}
 	
-	inline const OpenfaceFrame& get_frame() {
+	OpenfaceFrame get_frame() {
 		boost::unique_lock< boost::shared_mutex > lock(_access);
 		frame.updated = false;
-		return frame
+		return frame;
 	}
 
 private:
@@ -482,27 +572,26 @@ BOOST_PYTHON_MODULE(PyOpenfaceVideo) {
     using namespace boost::python;
 	
 	class_<OpenfaceV3>("OpenfaceV3")
-        .def_read("x", &OpenfaceV3::x)
-        .def_read("y", &OpenfaceV3::y)
-        .def_read("z", &OpenfaceV3::z);
+        .def_readonly("x", &OpenfaceV3::x)
+        .def_readonly("y", &OpenfaceV3::y)
+        .def_readonly("z", &OpenfaceV3::z);
 	
-    class_<std::vector<OpenfaceV3>>("OpenfaceV3Vector")
-        .def(vector_indexing_suite<std::vector<OpenfaceV3>>());
+    class_<OpenfaceV3Vector>("OpenfaceV3Vector")
+        .def(vector_indexing_suite<OpenfaceV3Vector>());
 	
-	class_<OpenfaceV3>("OpenfaceFrame")
-        .def_read("gaze_0", &OpenfaceV3::gaze_0)
-        .def_read("gaze_1", &OpenfaceV3::gaze_1)
-        .def_read("head_rot", &OpenfaceV3::head_rot)
-        .def_read("head_pos", &OpenfaceV3::head_pos)
-        .def_read("landmarks", &OpenfaceV3::landmarks);
+	class_<OpenfaceFrame>("OpenfaceFrame")
+        .def_readonly("gaze_0", &OpenfaceFrame::gaze_0)
+        .def_readonly("gaze_1", &OpenfaceFrame::gaze_1)
+        .def_readonly("head_rot", &OpenfaceFrame::head_rot)
+        .def_readonly("head_pos", &OpenfaceFrame::head_pos)
+        .def_readonly("landmarks", &OpenfaceFrame::landmarks);
 	
 	class_<OpenfaceVideo>("OpenfaceVideo")
-    	.def("start", &OpenfaceVideo::start)
-    	.def("stop", &OpenfaceVideo::stop)
-    	.def("is_running", &OpenfaceVideo::is_running)
-    	.def("new_frame", &OpenfaceVideo::data_updated)
-    	.def("get_frame", &OpenfaceVideo::get_frame);
-	
+    	.add_property("start", &OpenfaceVideo::start)
+    	.add_property("stop", &OpenfaceVideo::stop)
+    	.add_property("is_running", &OpenfaceVideo::is_running)
+    	.add_property("has_frame", &OpenfaceVideo::has_frame)
+    	.add_property("get_frame", &OpenfaceVideo::get_frame);
 }
 
 int main(int argc, char **argv) {
