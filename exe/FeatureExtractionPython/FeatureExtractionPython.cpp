@@ -211,8 +211,7 @@ int OpenfaceVideoWorker(
 			char character_press = visualizer.ShowObservation();
 			
 			// quit processing the current sequence (useful when in Webcam mode)
-			if (character_press == 'q')
-			{
+			if ( !running || character_press == 'q') {
 				break;
 			}
 
@@ -254,22 +253,26 @@ int OpenfaceVideoWorker(
 		open_face_rec.Close();
 		INFO_STREAM("Closing input reader");
 		sequence_reader.Close();
-		INFO_STREAM("Closed successfully");
 
+		/*
 		if (recording_params.outputAUs())
 		{
 			INFO_STREAM("Postprocessing the Action Unit predictions");
 			face_analyser.PostprocessOutputFile(open_face_rec.GetCSVFile());
-		}
+		}*/
 
 		// Reset the models for the next video
 		face_analyser.Reset();
 		face_model.Reset();
-		
-		thread_group.remove_thread(this_thread);
-		delete this_thread;
 
 	}
+		
+	thread_group.remove_thread(this_thread);
+	delete this_thread;
+
+	this_thread = 0;
+
+	INFO_STREAM("Closed successfully");
 	
 	return 0;
 	
@@ -514,9 +517,11 @@ public:
 	bool stop() {
 		if ( thread_running ) {
 			thread_running = false;
-			usleep( 0.1 );
+			boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 			worker = 0;
+			std::cout << "OpenfaceVideo successfully closed" << std::endl;
 			return true;
+			
 		}
 		return false;
 	}
@@ -536,9 +541,7 @@ public:
 	}
 	
 	OpenfaceFrame get_frame() {
-		boost::unique_lock< boost::shared_mutex > lock(_access);
-		frame.updated = false;
-		return frame;
+		return public_frame;
 	}
 
 private:
