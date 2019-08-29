@@ -15,6 +15,12 @@ If you need to debug or change configuration, use the scripts below:
 
 For a hard reset of the folder, use `bash clear.sh` to remove boost, opencv, dlib and build folders.
 
+Demo: got to **python_scripts** and launch:
+
+```bash
+python3 PyOpenfaceVideo_tester.py
+```
+
 ## Description
 
 Over the past few years, there has been an increased interest in automatic facial behavior analysis
