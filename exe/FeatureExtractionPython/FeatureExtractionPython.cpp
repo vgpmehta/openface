@@ -271,6 +271,8 @@ int OpenfaceVideoWorker(
 
 	}
 	
+	return 0;
+	
 }
 
 struct OpenfaceV3 {
@@ -319,6 +321,7 @@ typedef std::vector<OpenfaceV3> OpenfaceV3Vector;
 
 struct OpenfaceFrame {
 	
+	uint32_t fID;
 	bool updated;
 	OpenfaceV3 gaze_0;
 	OpenfaceV3 gaze_1;
@@ -326,7 +329,7 @@ struct OpenfaceFrame {
 	OpenfaceV3 head_pos;
 	std::vector<OpenfaceV3> landmarks;
 	
-	OpenfaceFrame(): updated(false) {
+	OpenfaceFrame(): updated(false), fID(0) {
 		landmarks.resize(LANDMARKS_NUM);
 	}
 	
@@ -339,6 +342,7 @@ struct OpenfaceFrame {
 	void print() {
 		std::cout <<
 			"OpenfaceFrame" << std::endl <<
+			"\t" << "fID: " << fID << std::endl <<
 			"\t" << "updated: " << updated << std::endl <<
 			"\t" << "gaze_0: " << gaze_0.x << ", "  << gaze_0.y << ", "  << gaze_0.z << std::endl <<
 			"\t" << "gaze_1: " << gaze_1.x << ", "  << gaze_1.y << ", "  << gaze_1.z << std::endl <<
@@ -352,6 +356,7 @@ struct OpenfaceFrame {
 	
 	bool operator == ( const OpenfaceFrame& src ) {
 		if ( 
+			fID != src.fID || 
 			gaze_0 != src.gaze_0 || 
 			gaze_1 != src.gaze_1 || 
 			head_rot != src.head_rot  || 
@@ -367,6 +372,7 @@ struct OpenfaceFrame {
 	
 	bool operator != ( const OpenfaceFrame& src ) {
 		if ( 
+			fID != src.fID || 
 			gaze_0 != src.gaze_0 || 
 			gaze_1 != src.gaze_1 || 
 			head_rot != src.head_rot  || 
@@ -381,6 +387,7 @@ struct OpenfaceFrame {
 	}
 	
 	void operator = ( const OpenfaceFrame& src ) {
+		fID = src.fID;
 		updated = src.updated;
 		gaze_0 = src.gaze_0;
 		gaze_1 = src.gaze_1;
@@ -396,6 +403,8 @@ struct OpenfaceFrame {
 class OpenfaceVideo {
 	
 public:
+	
+	OpenfaceFrame public_frame;
 	
 	OpenfaceVideo() : worker(0) {}
 	
@@ -413,27 +422,43 @@ public:
 			arguments.push_back(std::string(argv[i]));
 		}
 		//append_argument( "-2Dfp", "" );
-		append_argument( "-3Dfp", "" );
-		append_argument( "-pose", "" );
-		append_argument( "-gaze", "" );
-		append_argument( "-device", "0" );
+		append_argument( "-3Dfp", "", false );
+		append_argument( "-pose", "", false );
+		append_argument( "-gaze", "", false );
+		append_argument( "-device", "0", false );
 	}
 
+	int get_device() {
+		return atoi( get_argument( "-device" ).c_str() );
+	}
+	
 	void set_device( int d ) {
-		
 		stop();
-		
-		if ( arguments.empty() ) {
-			load_arguments(0,0);
-		}
-		for ( int i = 0, imax = arguments.size(); i < imax; ++i ) {
-			if ( arguments[i].compare( "-device" ) == 0 ) {
-				arguments[i+1] = std::to_string(d);
-				return;
-			}
-		}
-		append_argument( "-device", std::to_string(d) );
-		
+		append_argument( "-device", std::to_string(d), true );
+	}
+	
+	std::string get_landmark_model() {
+		return get_argument( "-mloc" );
+	}
+	
+	void set_landmark_model( std::string path ) {
+		append_argument( "-mloc", path, true );
+	}
+	
+	std::string get_HAAR() {
+		return get_argument( "-fdloc" );
+	}
+	
+	void set_HAAR( const char* path ) {
+		append_argument( "-fdloc", std::string( path ), true );
+	}
+	
+	std::string get_MTCNN() {
+		return get_argument( "-mtcnnloc" );
+	}
+	
+	void set_MTCNN( const char* path ) {
+		append_argument( "-mtcnnloc", std::string( path ), true );
 	}
 	
 	bool start() {
@@ -468,22 +493,21 @@ public:
 		
 		const cv::Mat_<float>& l3d = rec.get_landmarks_3D();
 		cv::Size s = l3d.size();
-		std::cout << "new_frame " << rec.GetCSVFile() << ", rows: " << s.height << ", cols: " << s.width << std::endl;
 		
 		frame.gaze_0 = rec.get_gaze_direction(0);
 		frame.gaze_1 = rec.get_gaze_direction(1);
 		
 		cv::Vec6f h = rec.get_head_pose();
-		frame.head_rot.set( h[0], h[1], h[2] );
-		frame.head_pos.set( h[3], h[4], h[5] );
+		frame.head_pos.set( h[0], h[1], h[2] );
+		frame.head_rot.set( h[3], h[4], h[5] );
 		
 		for ( int c = 0;  c < s.width; ++c ) {
-			frame.landmarks[c].x = l3d.at<float>( c,0 );
-			frame.landmarks[c].y = l3d.at<float>( c,1 );
-			frame.landmarks[c].z = l3d.at<float>( c,2 );
+			frame.landmarks[c].x = l3d.at<float>( 0,c );
+			frame.landmarks[c].y = l3d.at<float>( 1,c );
+			frame.landmarks[c].z = l3d.at<float>( 2,c );
 		}
-		frame.updated = false;
-		frame.print();
+		frame.fID++;
+		frame.updated = true;
 		
 	}
 	
@@ -500,10 +524,15 @@ public:
 	bool is_running() const {
 		return worker != 0;
 	}
-	
-	bool has_frame() const {
+		
+	bool has_frame() {
 		boost::unique_lock< boost::shared_mutex > lock(_access);
-		return frame.updated;
+		if ( frame.updated ) {
+			public_frame = frame;
+			frame.updated = false;
+			return true;
+		}
+		return false;
 	}
 	
 	OpenfaceFrame get_frame() {
@@ -514,14 +543,26 @@ public:
 
 private:
 	
-	void append_argument( std::string a, std::string value ) {
+	void append_argument( std::string a, std::string value, bool empty_test ) {
+		
+		if ( empty_test && arguments.empty() ) {
+			load_arguments(0,0);
+		}
+		
 		std::vector<std::string>::iterator it = arguments.begin();
 		std::vector<std::string>::iterator ite = arguments.end();
 		bool found = false;
 		for ( ; it != ite; ++it ) {
 			if ( (*it).compare( a ) == 0 ) {
-				std::cout << "arg " << a << " is already there" << std::endl;
-				found = true; break;
+				++it;
+				if ( value.length() > 0 || it == ite ) {
+					std::cout << "arg " << a << " is already at " << value << std::endl;
+					found = true; break;
+				} else {
+					(*it) = value;
+					std::cout << "arg " << a << " > " << value << std::endl;
+					found = true; break;
+				}
 			}
 		}
 		if ( !found ) {
@@ -530,6 +571,21 @@ private:
 				arguments.push_back( value );
 			}
 		}
+	}
+	
+	std::string get_argument( std::string a ) {
+		std::vector<std::string>::iterator it = arguments.begin();
+		std::vector<std::string>::iterator ite = arguments.end();
+		for ( ; it != ite; ++it ) {
+			if ( (*it).compare( a ) == 0 ) {
+				++it;
+				if ( it == ite ) {
+					return "";
+				}
+				return (*it);
+			}
+		}
+		return "";
 	}
 	
 	std::vector<std::string> arguments;
@@ -597,6 +653,7 @@ BOOST_PYTHON_MODULE(PyOpenfaceVideo) {
         .def(vector_indexing_suite<OpenfaceV3Vector>());
 	
 	class_<OpenfaceFrame>("OpenfaceFrame")
+        .def_readonly("ID", &OpenfaceFrame::fID)
         .def_readonly("gaze_0", &OpenfaceFrame::gaze_0)
         .def_readonly("gaze_1", &OpenfaceFrame::gaze_1)
         .def_readonly("head_rot", &OpenfaceFrame::head_rot)
@@ -604,12 +661,15 @@ BOOST_PYTHON_MODULE(PyOpenfaceVideo) {
         .def_readonly("landmarks", &OpenfaceFrame::landmarks);
 	
 	class_<OpenfaceVideo>("OpenfaceVideo")
-    	.add_property("set_device", &OpenfaceVideo::set_device)
-    	.add_property("start", &OpenfaceVideo::start)
-    	.add_property("stop", &OpenfaceVideo::stop)
-    	.add_property("is_running", &OpenfaceVideo::is_running)
-    	.add_property("has_frame", &OpenfaceVideo::has_frame)
-    	.add_property("get_frame", &OpenfaceVideo::get_frame);
+    	.add_property("device", &OpenfaceVideo::get_device, &OpenfaceVideo::set_device)
+    	.add_property("landmark_model", &OpenfaceVideo::get_landmark_model, &OpenfaceVideo::set_landmark_model)
+    	.add_property("HAAR", &OpenfaceVideo::get_HAAR, &OpenfaceVideo::set_HAAR)
+    	.add_property("MTCNN", &OpenfaceVideo::get_MTCNN, &OpenfaceVideo::set_MTCNN)
+    	.def("start", &OpenfaceVideo::start)
+    	.def("stop", &OpenfaceVideo::stop)
+    	.def("is_running", &OpenfaceVideo::is_running)
+    	.def("has_frame", &OpenfaceVideo::has_frame)
+    	.def_readonly("frame", &OpenfaceVideo::public_frame);
 }
 
 int main(int argc, char **argv) {

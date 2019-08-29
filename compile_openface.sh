@@ -16,5 +16,8 @@ mkdir -p build
 cd build
 cmake -D CMAKE_CXX_COMPILER=g++-8 -D CMAKE_C_COMPILER=gcc-8 -D CMAKE_BUILD_TYPE=RELEASE ..
 make
-cd ..
+# copying models in FeatureExtractionPython folder
+cp -r bin/model/ exe/FeatureExtractionPython/model/
+mkdir -p exe/FeatureExtractionPython/classifiers/
+cp ../lib/3rdParty/OpenCV/classifiers/haarcascade_frontalface_alt.xml exe/FeatureExtractionPython/classifiers/
 echo "OpenFace successfully installed."

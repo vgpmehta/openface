@@ -1,6 +1,6 @@
 # OpenFace 2.2.0: a facial behavior analysis toolkit
 
-*Modified version of [original repository](https://github.com/TadasBaltrusaitis/OpenFace) to allow usage of webcam feature extraction from python. This is NOT a stable version.*
+*Modified version of [original repository](https://github.com/TadasBaltrusaitis/OpenFace) to allow usage of webcam feature extraction from python, developped and tested on Linux Mint 18.2 Cinnamon 64bits.* 
 
 part of the [ReVA-toolkit](https://github.com/numediart/ReVA-toolkit)
 

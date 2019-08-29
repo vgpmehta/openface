@@ -88,6 +88,14 @@ FaceModelParameters::FaceModelParameters(std::vector<std::string> &arguments)
 			valid[i + 1] = false;
 			i++;
 		}
+		if (arguments[i].compare("-mtcnnloc") ==0)
+		{
+			std::string mtcnn_face_detector_loc = arguments[i + 1];
+			mtcnn_face_detector_location = mtcnn_face_detector_loc;
+			valid[i] = false;
+			valid[i + 1] = false;
+			i++;
+		}
 		if (arguments[i].compare("-sigma") == 0)
 		{
 			std::stringstream data(arguments[i + 1]);
@@ -192,7 +200,7 @@ FaceModelParameters::FaceModelParameters(std::vector<std::string> &arguments)
 	}
 	else
 	{
-		std::cout << "Could not find the landmark detection model to load" << std::endl;
+		std::cout << "Could not find the landmark detection model to load " << model_path << std::endl;
 	}
 
 	if (model_path.stem().string().compare("main_ceclm_general") == 0)
@@ -227,7 +235,7 @@ FaceModelParameters::FaceModelParameters(std::vector<std::string> &arguments)
 	}
 	else
 	{
-		std::cout << "Could not find the HAAR face detector location" << std::endl;
+		std::cout << "Could not find the HAAR face detector location " << haar_face_detector_location << std::endl;
 	}
 
 	// Make sure face detector location is valid
@@ -247,7 +255,7 @@ FaceModelParameters::FaceModelParameters(std::vector<std::string> &arguments)
 	}
 	else
 	{
-		std::cout << "Could not find the MTCNN face detector location" << std::endl;
+		std::cout << "Could not find the MTCNN face detector location " << mtcnn_face_detector_location << std::endl;
 	}
 	check_model_path(root.string());
 }
@@ -274,7 +282,7 @@ void FaceModelParameters::check_model_path(const std::string& root)
 	}
 	else
 	{
-		std::cout << "Could not find the landmark detection model to load" << std::endl;
+		std::cout << "Could not find the landmark detection model to load " << model_location << std::endl;
 	}
 }
 
