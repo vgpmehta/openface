@@ -514,7 +514,7 @@ public:
 	bool stop() {
 		if ( thread_running ) {
 			thread_running = false;
-			usleep( 1000 );
+			usleep( 0.1 );
 			worker = 0;
 			return true;
 		}
