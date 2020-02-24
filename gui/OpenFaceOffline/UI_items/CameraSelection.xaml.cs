@@ -49,8 +49,15 @@ namespace OpenFaceOffline
             {
                 String root = AppDomain.CurrentDomain.BaseDirectory;
                 //cams = CameraInterop.Capture.GetCameras(root);
-                cams = UtilitiesOF.SequenceReader.GetCameras(root);
-            }
+                List<Tuple<int, String, List<Tuple<int, int>>, OpenCVWrappers.RawImage>> camsTmp;
+                camsTmp = UtilitiesOF.SequenceReader.GetCameras(root);
+                cams = new List<Tuple<int, String, List<Tuple<int, int>>, OpenCVWrappers.RawImage>>();
+                foreach (var s in camsTmp)
+                {                   
+                    if ( s.Item4.Width > 0 && s.Item4.Height > 0)
+                        cams.Add(s);
+                }
+            }           
 
             int i = 0;
 
@@ -62,7 +69,8 @@ namespace OpenFaceOffline
 
             foreach (var s in cams)
             {
-
+                /*if (s.Item4.Width <= 0 || s.Item4.Height <= 0)
+                    continue;*/
                 var b = s.Item4.CreateWriteableBitmap();
                 s.Item4.UpdateWriteableBitmap(b);
                 b.Freeze();
