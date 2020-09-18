@@ -1346,7 +1346,7 @@ void FaceAnalyser::PostprocessOutputFile(std::string output_file)
 	outfile << std::fixed;
 	outfile << std::noshowpoint;
 
-	outfile << output_file_contents[0].c_str() << std::endl;
+	outfile << output_file_contents[0].c_str() << "\n";
 
 	// Write the contents
 	for (int i = 1; i < (int)output_file_contents.size(); ++i)
@@ -1376,7 +1376,7 @@ void FaceAnalyser::PostprocessOutputFile(std::string output_file)
 				outfile << ", " << tokens[t];
 			}
 		}
-		outfile << std::endl;
+		outfile << "\n";
 	}
 
 

@@ -163,7 +163,7 @@ bool RecorderCSV::Open(std::string output_file_name, bool is_sequence, bool outp
 		}
 	}
 
-	output_file << std::endl;
+	output_file << "\n";
 
 	return true;
 
@@ -331,7 +331,7 @@ void RecorderCSV::WriteLine(int face_id, int frame_num, double time_stamp, bool 
 			}
 		}
 	}
-	output_file << std::endl;
+	output_file << "\n";
 }
 
 // Closing the file and cleaning up
