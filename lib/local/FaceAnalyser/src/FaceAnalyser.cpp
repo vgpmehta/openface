@@ -1363,17 +1363,17 @@ void FaceAnalyser::PostprocessOutputFile(std::string output_file)
 			{
 				if (t - begin_ind < num_reg)
 				{
-					outfile << ", " << predictions_reg[inds_reg[t - begin_ind]].second[i - 1];
+					outfile << "," << predictions_reg[inds_reg[t - begin_ind]].second[i - 1];
 				}
 				else
 				{
-					outfile << ", " << predictions_class[inds_class[t - begin_ind - num_reg]].second[i - 1];
+					outfile << "," << predictions_class[inds_class[t - begin_ind - num_reg]].second[i - 1];
 				}
 			}
 			else
 			{
 				rtrim(tokens[t]);
-				outfile << ", " << tokens[t];
+				outfile << "," << tokens[t];
 			}
 		}
 		outfile << "\n";
