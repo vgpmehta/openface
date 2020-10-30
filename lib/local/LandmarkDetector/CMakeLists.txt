@@ -37,7 +37,7 @@ SET(HEADERS
 	include/stdafx.h
 )
 
-add_library( LandmarkDetector ${SOURCE} ${HEADERS} )
+add_library( LandmarkDetector SHARED ${SOURCE} ${HEADERS} )
 add_library( OpenFace::LandmarkDetector ALIAS LandmarkDetector)
 
 target_include_directories(LandmarkDetector PUBLIC

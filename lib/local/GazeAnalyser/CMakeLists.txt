@@ -12,7 +12,7 @@ SET(HEADERS
     include/GazeEstimation.h
 )
 
-add_library( GazeAnalyser ${SOURCE} ${HEADERS})
+add_library( GazeAnalyser SHARED ${SOURCE} ${HEADERS})
 add_library( OpenFace::GazeAnalyser ALIAS GazeAnalyser)
 
 target_include_directories(GazeAnalyser PUBLIC

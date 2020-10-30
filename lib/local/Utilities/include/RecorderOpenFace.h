@@ -110,6 +110,28 @@ namespace Utilities
 		void WriteObservationTracked();
 
 		std::string GetCSVFile() { return csv_filename; }
+		
+		// DIRTY polymorph.cool HACKING
+		
+		inline const cv::Mat_<float>& get_landmarks_2D() const {
+			return landmarks_2D;
+		}
+		
+		inline const cv::Mat_<float>& get_landmarks_3D() const {
+			return landmarks_3D;
+		}
+		
+		inline const cv::Vec6f& get_head_pose() const {
+			return head_pose;
+		}
+		
+		inline const cv::Point3f& get_gaze_direction(int i) const {
+			if ( i == 0 ) {
+				return gaze_direction0;
+			} else {
+				return gaze_direction1;
+			}
+		}
 
 	private:
 

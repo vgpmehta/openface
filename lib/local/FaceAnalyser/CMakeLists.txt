@@ -27,7 +27,7 @@ SET(HEADERS
 )
 
 
-add_library( FaceAnalyser ${SOURCE} ${HEADERS})
+add_library( FaceAnalyser SHARED ${SOURCE} ${HEADERS})
 add_library( OpenFace::FaceAnalyser ALIAS FaceAnalyser)
 
 target_include_directories(FaceAnalyser PUBLIC

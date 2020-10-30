@@ -1,7 +1,27 @@
 # OpenFace 2.2.0: a facial behavior analysis toolkit
 
-[![Build Status](https://travis-ci.org/TadasBaltrusaitis/OpenFace.svg?branch=master)](https://travis-ci.org/TadasBaltrusaitis/OpenFace)
-[![Build status](https://ci.appveyor.com/api/projects/status/8msiklxfbhlnsmxp/branch/master?svg=true)](https://ci.appveyor.com/project/TadasBaltrusaitis/openface/branch/master)
+*Modified version of [original repository](https://github.com/TadasBaltrusaitis/OpenFace) to allow usage of webcam feature extraction from python, developped and tested on Linux Mint 18.2 Cinnamon 64bits.* 
+
+part of the [ReVA-toolkit](https://github.com/numediart/ReVA-toolkit)
+
+If it is your first install, just run `install.sh`.
+
+If you need to debug or change configuration, use the scripts below:
+
+- `bash download_models.sh` : download and install models
+- `bash prepare.sh` : download all dependencies and install system libs
+- `bash compile_deps.sh` : compile boost, opencv & dlib
+- `bash compile_openface.sh` : compile openface
+
+For a hard reset of the folder, use `bash clear.sh` to remove boost, opencv, dlib and build folders.
+
+Demo: got to **python_scripts** and launch:
+
+```bash
+python3 PyOpenfaceVideo_tester.py
+```
+
+## Description
 
 Over the past few years, there has been an increased interest in automatic facial behavior analysis
 and understanding. We present OpenFace – a tool intended for computer vision and machine learning

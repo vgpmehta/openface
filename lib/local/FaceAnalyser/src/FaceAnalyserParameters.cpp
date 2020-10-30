@@ -67,6 +67,8 @@ FaceAnalyserParameters::FaceAnalyserParameters(std::vector<std::string> &argumen
 
 	bool scale_set = false;
 	bool size_set = false;
+	
+	std::string au_custom_path = "";
 
 	for (size_t i = 1; i < arguments.size(); ++i)
 	{
@@ -103,6 +105,13 @@ FaceAnalyserParameters::FaceAnalyserParameters(std::vector<std::string> &argumen
 			size_set = true;
 			i++;
 		}
+		else if (arguments[i].compare("-au") == 0)
+		{
+			au_custom_path = arguments[i + 1];
+			valid[i] = false;
+			valid[i + 1] = false;
+			i++;
+		}
 	}
 
 	for (int i = (int)arguments.size() - 1; i >= 0; --i)
@@ -113,13 +122,21 @@ FaceAnalyserParameters::FaceAnalyserParameters(std::vector<std::string> &argumen
 		}
 	}
 
-	if (dynamic)
-	{
-		this->model_location = "AU_predictors/main_dynamic_svms.txt";
-	}
-	else
-	{
-		this->model_location = "AU_predictors/main_static_svms.txt";
+	if ( au_custom_path.length() > 0 ) {
+		
+		this->model_location = au_custom_path;
+		
+	} else {
+	
+		if (dynamic)
+		{
+			this->model_location = "AU_predictors/main_dynamic_svms.txt";
+		}
+		else
+		{
+			this->model_location = "AU_predictors/main_static_svms.txt";
+		}
+		
 	}
 
 	// If we set the size but not the scale, adapt the scale to the right size
