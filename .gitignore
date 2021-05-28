@@ -103,5 +103,14 @@ lib/3rdParty/CameraEnumerator/Debug/
 lib/local/CppInerop/Debug/
 *.user
 
+# Python API folders
+python_api/pybind*
+python_api/build
+python_api/dist
+python_api/*.egg-info
+
 # IDE-generated folders
 .idea
+
+# Useless macOS files
+.DS_Store
