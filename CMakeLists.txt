@@ -31,27 +31,69 @@ endif()
 
 find_package( OpenCV 4.0 REQUIRED COMPONENTS core imgproc calib3d highgui objdetect)
 if(${OpenCV_FOUND})
-	MESSAGE("OpenCV information:") 
-	MESSAGE("  OpenCV_INCLUDE_DIRS: ${OpenCV_INCLUDE_DIRS}") 
-	MESSAGE("  OpenCV_LIBRARIES: ${OpenCV_LIBRARIES}") 
-	MESSAGE("  OpenCV_LIBRARY_DIRS: ${OpenCV_LINK_DIRECTORIES}") 
+	MESSAGE("OpenCV information:")
+	MESSAGE("  OpenCV_INCLUDE_DIRS: ${OpenCV_INCLUDE_DIRS}")
+	MESSAGE("  OpenCV_LIBRARIES: ${OpenCV_LIBRARIES}")
+	MESSAGE("  OpenCV_LIBRARY_DIRS: ${OpenCV_LINK_DIRECTORIES}")
 else()
     MESSAGE(FATAL_ERROR "OpenCV not found in the system.")
 endif()
-
-find_package( Boost 1.5.9 COMPONENTS filesystem system)
+#
+SET (BOOST_ROOT "${CMAKE_SOURCE_DIR}/lib/3rdParty/boost_1_64_0")
+SET (BOOST_INCLUDEDIR "${BOOST_ROOT}/boost")
+SET (BOOST_LIBRARYDIR "${BOOST_ROOT}/libs")
+find_package( Boost 1.6.4 COMPONENTS filesystem system)
 if(${Boost_FOUND})
-	MESSAGE("Boost information:") 
+	MESSAGE("Boost information:")
 	MESSAGE("  Boost_VERSION: ${Boost_VERSION}")
-	MESSAGE("  Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}") 
-	MESSAGE("  Boost_LIBRARIES: ${Boost_LIBRARIES}") 
-	MESSAGE("  Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}") 
+	MESSAGE("  Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
+	MESSAGE("  Boost_LIBRARIES: ${Boost_LIBRARIES}")
+	MESSAGE("  Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}")
 else()
     MESSAGE("Boost not found in the system.")
 endif()
 
 
-# Move LandmarkDetector model
+
+## load in pkg-config support
+find_package(PkgConfig)
+## use pkg-config to get hints for 0mq locations
+pkg_check_modules(PC_ZeroMQ QUIET zmq)
+
+## use the hint from above to find where 'zmq.hpp' is located
+find_path(ZeroMQ_INCLUDE_DIR
+        NAMES zmq.hpp
+        PATHS ${PC_ZeroMQ_INCLUDE_DIRS}
+        )
+
+## use the hint from about to find the location of libzmq
+find_library(ZeroMQ_LIBRARY
+        NAMES zmq
+        PATHS ${PC_ZeroMQ_LIBRARY_DIRS}
+        )
+
+## load in pkg-config support
+find_package(PkgConfig)
+## use pkg-config to get hints for 0mq locations
+pkg_check_modules(PC_ZeroMQ QUIET zmq)
+
+## use the hint from above to find where 'zmq.hpp' is located
+find_path(ZeroMQ_INCLUDE_DIR
+        NAMES zmq.hpp
+        PATHS ${PC_ZeroMQ_INCLUDE_DIRS}
+        )
+
+## use the hint from about to find the location of libzmq
+find_library(ZeroMQ_LIBRARY
+        NAMES zmq
+        PATHS ${PC_ZeroMQ_LIBRARY_DIRS}
+        )
+
+
+message (STATUS "Using ZMQ library ${ZeroMQ_LIBRARY}" )
+message (STATUS "Using cppzmq_LIBRARY ${cppzmq_LIBRARY}" )
+
+#Move LandmarkDetector model
 file(GLOB files "lib/local/LandmarkDetector/model/*.txt")
 foreach(file ${files})
 	file(COPY ${file} DESTINATION ${CMAKE_BINARY_DIR}/bin/model)
@@ -145,7 +187,8 @@ if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
 endif ()
 
 # dlib
-find_package(dlib 19.13)
+# SET(dlib_ROOT "C:/dlib-19.13/")
+find_package(dlib)
 if(${dlib_FOUND})
     message("dlib information:")
     message("  dlib version: ${dlib_VERSION}")
@@ -245,3 +288,4 @@ add_subdirectory(exe/FaceLandmarkImg)
 add_subdirectory(exe/FaceLandmarkVid)
 add_subdirectory(exe/FaceLandmarkVidMulti)
 add_subdirectory(exe/FeatureExtraction)
+add_subdirectory(exe/AuExtractionMQ)

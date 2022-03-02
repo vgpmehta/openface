@@ -4,7 +4,7 @@
 //
 // ACADEMIC OR NON-PROFIT ORGANIZATION NONCOMMERCIAL RESEARCH USE ONLY
 //
-// BY USING OR DOWNLOADING THE SOFTWARE, YOU ARE AGREEING TO THE TERMS OF THIS LICENSE AGREEMENT.  
+// BY USING OR DOWNLOADING THE SOFTWARE, YOU ARE AGREEING TO THE TERMS OF THIS LICENSE AGREEMENT.
 // IF YOU DO NOT AGREE WITH THESE TERMS, YOU MAY NOT USE OR DOWNLOAD THE SOFTWARE.
 //
 // License can be found in OpenFace-license.txt
@@ -14,21 +14,21 @@
 //       reports and manuals, must cite at least one of the following works:
 //
 //       OpenFace 2.0: Facial Behavior Analysis Toolkit
-//       Tadas Baltrušaitis, Amir Zadeh, Yao Chong Lim, and Louis-Philippe Morency
-//       in IEEE International Conference on Automatic Face and Gesture Recognition, 2018  
+//       Tadas Baltruï¿½aitis, Amir Zadeh, Yao Chong Lim, and Louis-Philippe Morency
+//       in IEEE International Conference on Automatic Face and Gesture Recognition, 2018
 //
 //       Convolutional experts constrained local model for facial landmark detection.
-//       A. Zadeh, T. Baltrušaitis, and Louis-Philippe Morency,
-//       in Computer Vision and Pattern Recognition Workshops, 2017.    
+//       A. Zadeh, T. Baltruï¿½aitis, and Louis-Philippe Morency,
+//       in Computer Vision and Pattern Recognition Workshops, 2017.
 //
 //       Rendering of Eyes for Eye-Shape Registration and Gaze Estimation
-//       Erroll Wood, Tadas Baltrušaitis, Xucong Zhang, Yusuke Sugano, Peter Robinson, and Andreas Bulling 
-//       in IEEE International. Conference on Computer Vision (ICCV),  2015 
+//       Erroll Wood, Tadas Baltruï¿½aitis, Xucong Zhang, Yusuke Sugano, Peter Robinson, and Andreas Bulling
+//       in IEEE International. Conference on Computer Vision (ICCV),  2015
 //
 //       Cross-dataset learning and person-specific normalisation for automatic Action Unit detection
-//       Tadas Baltrušaitis, Marwa Mahmoud, and Peter Robinson 
-//       in Facial Expression Recognition and Analysis Challenge, 
-//       IEEE International Conference on Automatic Face and Gesture Recognition, 2015 
+//       Tadas Baltruï¿½aitis, Marwa Mahmoud, and Peter Robinson
+//       in Facial Expression Recognition and Analysis Challenge,
+//       IEEE International Conference on Automatic Face and Gesture Recognition, 2015
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -67,7 +67,7 @@ public:
 	void AddNextFrame(const cv::Mat& frame, const cv::Mat_<float>& detected_landmarks, bool success, double timestamp_seconds, bool online = false);
 
 	double GetCurrentTimeSeconds();
-	
+
 	// Grab the current predictions about AUs from the face analyser
 	std::vector<std::pair<std::string, double>> GetCurrentAUsClass() const; // AU presence
 	std::vector<std::pair<std::string, double>> GetCurrentAUsReg() const;   // AU intensity
@@ -80,11 +80,11 @@ public:
 
 	void GetLatestHOG(cv::Mat_<double>& hog_descriptor, int& num_rows, int& num_cols);
 	void GetLatestAlignedFace(cv::Mat& image);
-	
+
 	void GetLatestNeutralHOG(cv::Mat_<double>& hog_descriptor, int& num_rows, int& num_cols);
-	
+
 	cv::Mat_<int> GetTriangulation();
-	
+
 	void GetGeomDescriptor(cv::Mat_<double>& geom_desc);
 
 	// Grab the names of AUs being predicted
@@ -96,13 +96,15 @@ public:
 	std::vector<std::pair<std::string, bool>> GetDynamicAUReg() const; // Intensity
 
 
-	void ExtractAllPredictionsOfflineReg(std::vector<std::pair<std::string, std::vector<double>>>& au_predictions, 
+	void ExtractAllPredictionsOfflineReg(std::vector<std::pair<std::string, std::vector<double>>>& au_predictions,
 		std::vector<double>& confidences, std::vector<bool>& successes, std::vector<double>& timestamps, bool dynamic);
 	void ExtractAllPredictionsOfflineClass(std::vector<std::pair<std::string, std::vector<double>>>& au_predictions,
 		std::vector<double>& confidences, std::vector<bool>& successes, std::vector<double>& timestamps, bool dynamic);
 
 	// Helper function for post-processing AU output files
 	void PostprocessOutputFile(std::string output_file);
+	std::pair< std::vector<std::pair<std::string, std::vector<double>>>, std::vector<std::pair<std::string, std::vector<double>>>> Live_PostprocessOutputFile();
+
 
 private:
 
@@ -160,16 +162,16 @@ private:
 	// The geometry descriptor (rigid followed by non-rigid shape parameters from CLNF)
 	cv::Mat_<double> geom_descriptor_frame;
 	cv::Mat_<double> geom_descriptor_median;
-	
+
 	int geom_hist_sum;
 	cv::Mat_<int> geom_desc_hist;
 	int num_bins_geom;
 	double min_val_geom;
 	double max_val_geom;
-	
+
 	// Using the bounding box of previous analysed frame to determine if a reset is needed
 	cv::Rect_<double> face_bounding_box;
-	
+
 	// The AU predictions internally
 	std::vector<std::pair<std::string, double>> PredictCurrentAUs(int view);
 	std::vector<std::pair<std::string, double>> PredictCurrentAUsClass(int view);
@@ -188,20 +190,20 @@ private:
 	// TODO this duplicates some other code
 	void UpdateRunningMedian(cv::Mat_<int>& histogram, int& hist_sum, cv::Mat_<double>& median, const cv::Mat_<double>& descriptor, bool update, int num_bins, double min_val, double max_val);
 	void ExtractMedian(cv::Mat_<int>& histogram, int hist_count, cv::Mat_<double>& median, int num_bins, double min_val, double max_val);
-	
+
 	// The linear SVR regressors
 	SVR_static_lin_regressors AU_SVR_static_appearance_lin_regressors;
 	SVR_dynamic_lin_regressors AU_SVR_dynamic_appearance_lin_regressors;
-		
+
 	// The linear SVM classifiers
 	SVM_static_lin AU_SVM_static_appearance_lin;
 	SVM_dynamic_lin AU_SVM_dynamic_appearance_lin;
 
 	// The AUs predicted by the model are not always 0 calibrated to a person. That is they don't always predict 0 for a neutral expression
 	// Keeping track of the predictions we can correct for this, by assuming that at least "ratio" of frames are neutral and subtract that value of prediction, only perform the correction after min_frames
-	void UpdatePredictionTrack(cv::Mat_<int>& prediction_corr_histogram, int& prediction_correction_count, 
+	void UpdatePredictionTrack(cv::Mat_<int>& prediction_corr_histogram, int& prediction_correction_count,
 		std::vector<double>& correction, const std::vector<std::pair<std::string, double>>& predictions, double ratio=0.25, int num_bins = 200, double min_val = -3, double max_val = 5, int min_frames = 10);
-	void GetSampleHist(cv::Mat_<int>& prediction_corr_histogram, int prediction_correction_count, 
+	void GetSampleHist(cv::Mat_<int>& prediction_corr_histogram, int prediction_correction_count,
 		std::vector<double>& sample, double ratio, int num_bins = 200, double min_val = 0, double max_val = 5);
 
 	void PostprocessPredictions();
@@ -213,7 +215,7 @@ private:
 	// it is hard to tell the boundaries, this allows us to scale the model to the most extreme seen)
 	// They have to be view specific
 	std::vector<std::vector<double>> dyn_scaling;
-	
+
 	// Keeping track of predictions for summary stats
 	cv::Mat_<double> AU_prediction_track;
 	cv::Mat_<double> geom_desc_track;
