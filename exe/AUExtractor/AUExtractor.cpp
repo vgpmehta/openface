@@ -1,0 +1,338 @@
+///////////////////////////////////////////////////////////////////////////////
+// Copyright (C) 2017, Carnegie Mellon University and University of Cambridge,
+// all rights reserved.
+//
+// ACADEMIC OR NON-PROFIT ORGANIZATION NONCOMMERCIAL RESEARCH USE ONLY
+//
+// BY USING OR DOWNLOADING THE SOFTWARE, YOU ARE AGREEING TO THE TERMS OF THIS LICENSE AGREEMENT.
+// IF YOU DO NOT AGREE WITH THESE TERMS, YOU MAY NOT USE OR DOWNLOAD THE SOFTWARE.
+//
+// License can be found in OpenFace-license.txt
+
+//     * Any publications arising from the use of this software, including but
+//       not limited to academic journal and conference publications, technical
+//       reports and manuals, must cite at least one of the following works:
+//
+//       OpenFace 2.0: Facial Behavior Analysis Toolkit
+//       Tadas Baltru�aitis, Amir Zadeh, Yao Chong Lim, and Louis-Philippe Morency
+//       in IEEE International Conference on Automatic Face and Gesture Recognition, 2018
+//
+//       Convolutional experts constrained local model for facial landmark detection.
+//       A. Zadeh, T. Baltru�aitis, and Louis-Philippe Morency,
+//       in Computer Vision and Pattern Recognition Workshops, 2017.
+//
+//       Rendering of Eyes for Eye-Shape Registration and Gaze Estimation
+//       Erroll Wood, Tadas Baltru�aitis, Xucong Zhang, Yusuke Sugano, Peter Robinson, and Andreas Bulling
+//       in IEEE International. Conference on Computer Vision (ICCV),  2015
+//
+//       Cross-dataset learning and person-specific normalisation for automatic Action Unit detection
+//       Tadas Baltru�aitis, Marwa Mahmoud, and Peter Robinson
+//       in Facial Expression Recognition and Analysis Challenge,
+//       IEEE International Conference on Automatic Face and Gesture Recognition, 2015
+//
+///////////////////////////////////////////////////////////////////////////////
+// FaceLandmarkImg.cpp : Defines the entry point for the console application for detecting landmarks in images.
+
+// dlib
+#include <dlib/image_processing/frontal_face_detector.h>
+
+#include "LandmarkCoreIncludes.h"
+
+#include <FaceAnalyser.h>
+#include <GazeEstimation.h>
+
+#include <ImageCapture.h>
+#include <Visualizer.h>
+#include <VisualizationUtils.h>
+#include <RecorderOpenFace.h>
+#include <RecorderOpenFaceParameters.h>
+
+// zmq
+#include <string>
+#include <chrono>
+#include <thread>
+#include <iostream>
+#include <zmq.hpp>
+#include <string.h>
+#include <stdio.h>
+#include <unistd.h>
+
+#include "base64.h"
+
+#include <opencv2/imgproc/imgproc.hpp>
+
+#include <sys/time.h>
+
+#ifndef CONFIG_DIR
+#define CONFIG_DIR "~"
+#endif
+
+using namespace std;
+
+std::vector<std::string> get_arguments(int argc, char **argv)
+{
+  std::vector<std::string> arguments;
+
+  for (int i = 0; i < argc; ++i)
+  {
+    arguments.push_back(std::string(argv[i]));
+  }
+
+  return arguments;
+}
+
+string convertToJSON(cv::Rect_<float> roi, vector<pair<string, double>> intensity, vector<pair<string, double>> presence)
+{
+  std::string json = "{\"roi\":{\"x\":" + to_string(((int)roi.x) - 1) + ",\"y\":" + to_string(((int)roi.y) - 1) +
+                     ",\"width\":" + to_string(((int)roi.width + 2)) + ",\"height\":" + to_string(((int)roi.height) + 2);
+
+  json = json + "},\"intensity\":{";
+
+  for (int i = 0; i < intensity.size(); i++)
+  {
+    json = json + "\"" + intensity[i].first + "\":" + to_string(intensity[i].second);
+
+    if (i < intensity.size() - 1)
+    {
+      json = json + ",";
+    }
+  }
+
+  json = json + "},\"presence\":{";
+
+  for (int i = 0; i < presence.size(); i++)
+  {
+    json = json + "\"" + presence[i].first + "\":" + to_string(presence[i].second);
+
+    if (i < presence.size() - 1)
+    {
+      json = json + ",";
+    }
+  }
+
+  json = json + "}}";
+
+  return json;
+}
+
+string convertToJSON(cv::Rect_<float> roi)
+{
+  std::string json = "{\"roi\":{\"x\":" + to_string(((int)roi.x) - 1) + ",\"y\":" + to_string(((int)roi.y) - 1) +
+                     ",\"width\":" + to_string(((int)roi.width) + 2) + ",\"height\":" + to_string(((int)roi.height) + 2);
+
+  json = json + "},\"intensity\":{\"AU01\":\"-\",\"AU02\":\"-\",\"AU04\":\"-\",\"AU05\":\"-\"," +
+         "\"AU06\":\"-\",\"AU07\":\"-\",\"AU09\":\"-\",\"AU10\":\"-\",\"AU12\":\"-\",\"AU14\":\"-\"," +
+         "\"AU15\":\"-\",\"AU17\":\"-\",\"AU20\":\"-\",\"AU23\":\"-\",\"AU25\":\"-\",\"AU26\":\"-\",\"AU45\":\"-\"}," +
+         "\"presence\":{\"AU01\":\"-\",\"AU02\":\"-\",\"AU04\":\"-\",\"AU05\":\"-\",\"AU06\":\"-\",\"AU07\":\"-\"," +
+         "\"AU09\":\"-\",\"AU10\":\"-\",\"AU12\":\"-\",\"AU14\":\"-\",\"AU15\":\"-\",\"AU17\":\"-\",\"AU20\":\"-\"," +
+         "\"AU23\":\"-\",\"AU25\":\"-\",\"AU26\":\"-\",\"AU28\":\"-\",\"AU45\":\"-\"}}";
+
+  return json;
+}
+
+void loadFaceModel(LandmarkDetector::CLNF &clnf_model, LandmarkDetector::FaceModelParameters &params)
+{
+  if (clnf_model.face_detector_HAAR.empty() && params.curr_face_detector == params.HAAR_DETECTOR)
+  {
+    clnf_model.face_detector_HAAR.load(params.haar_face_detector_location);
+    clnf_model.haar_face_detector_location = params.haar_face_detector_location;
+  }
+
+  if (clnf_model.face_detector_MTCNN.empty() && params.curr_face_detector == params.MTCNN_DETECTOR)
+  {
+    clnf_model.face_detector_MTCNN.Read(params.mtcnn_face_detector_location);
+    clnf_model.mtcnn_face_detector_location = params.mtcnn_face_detector_location;
+
+    // If the model is still empty default to HOG
+    if (clnf_model.face_detector_MTCNN.empty())
+    {
+      std::cout << "INFO: defaulting to HOG-SVM face detector" << std::endl;
+      params.curr_face_detector = LandmarkDetector::FaceModelParameters::HOG_SVM_DETECTOR;
+    }
+  }
+
+  // Warm up the models
+  // cv::Mat dummy_image = cv::Mat::zeros(cv::Size(640, 480), CV_8UC3);
+  // std::cout << "DUMMY: " << dummy_image.size() << " | " << dummy_image.type() << std::endl;
+  // for (int i = 0; i < 5; ++i)
+  // {
+  //   LandmarkDetector::DetectLandmarksInVideo(dummy_image, clnf_model, params, dummy_image);
+  // }
+}
+
+cv::Rect_<float> detectSingleFace(const cv::Mat &rgb_image, LandmarkDetector::CLNF &clnf_model, LandmarkDetector::FaceModelParameters &params, cv::Mat &grayscale_image)
+{
+  cv::Rect_<float> bounding_box(0, 0, 0, 0);
+
+  if (params.curr_face_detector == LandmarkDetector::FaceModelParameters::HOG_SVM_DETECTOR)
+  {
+    float confidence;
+    LandmarkDetector::DetectSingleFaceHOG(bounding_box, grayscale_image, clnf_model.face_detector_HOG, confidence);
+  }
+  else if (params.curr_face_detector == LandmarkDetector::FaceModelParameters::HAAR_DETECTOR)
+  {
+    LandmarkDetector::DetectSingleFace(bounding_box, rgb_image, clnf_model.face_detector_HAAR);
+  }
+  else if (params.curr_face_detector == LandmarkDetector::FaceModelParameters::MTCNN_DETECTOR)
+  {
+    float confidence;
+    LandmarkDetector::DetectSingleFaceMTCNN(bounding_box, rgb_image, clnf_model.face_detector_MTCNN, confidence);
+  }
+
+  return bounding_box;
+}
+
+int main(int argc, char **argv)
+{
+  // Convert arguments to more convenient vector form
+  std::vector<std::string> arguments = get_arguments(argc, argv);
+
+  // Load the models
+  LandmarkDetector::FaceModelParameters det_parameters(arguments);
+
+  // The modules that are being used for tracking
+  std::cout << "Loading landmark model" << std::endl;
+  LandmarkDetector::CLNF face_model(det_parameters.model_location);
+
+  loadFaceModel(face_model, det_parameters);
+
+  if (!face_model.loaded_successfully)
+  {
+    std::cout << "ERROR: Could not load the landmark detector" << std::endl;
+    return 1;
+  }
+
+  std::cout << "Loading facial feature extractor" << std::endl;
+  FaceAnalysis::FaceAnalyserParameters face_analysis_params(arguments);
+  face_analysis_params.OptimizeForImages();
+  FaceAnalysis::FaceAnalyser face_analyser(face_analysis_params);
+
+  std::cout << "Everything loaded" << std::endl;
+
+  // ZMQ preparation
+  zmq::context_t ctx;
+  zmq::socket_t sock(ctx, ZMQ_REP);
+  std::string port{argc > 1 ? arguments[1] : "5555"};
+  std::cout << "Opening socket on port " + port << std::endl;
+  sock.connect("tcp://localhost:" + port);
+
+  int frame_count = 0;
+  cv::Rect_<float> roi(0, 0, 0, 0);
+  cv::Mat greyScale_image, rgb_image_roi, greyScale_image_roi;
+  int original_frame_width, original_frame_height;
+
+  struct timeval stop, start, stop_all, start_all;
+
+  while (true)
+  {
+    zmq::message_t request;
+    sock.recv(request, zmq::recv_flags::none);
+    std::string rpl = std::string(static_cast<char *>(request.data()), request.size());
+
+    gettimeofday(&start_all, NULL);
+
+    gettimeofday(&start, NULL);
+
+    // decode image
+    std::string dec_jpg = base64_decode(rpl);
+    std::vector<uchar> data(dec_jpg.begin(), dec_jpg.end());
+    cv::Mat rgb_image = cv::imdecode(cv::Mat(data), 1);
+    cv::cvtColor(rgb_image, greyScale_image, cv::COLOR_BGR2GRAY);
+
+    gettimeofday(&stop, NULL);
+    printf("decode: %lu\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec);
+
+    // Detect ROI
+    if (roi.width == 0)
+    {
+      original_frame_width = rgb_image.size().width;
+      original_frame_height = rgb_image.size().height;
+
+      roi = detectSingleFace(rgb_image, face_model, det_parameters, greyScale_image);
+
+      // Add some buffer for the ROI
+      int buffer = roi.height / 4;
+      roi.x = (roi.x - buffer) < 0 ? 0 : (roi.x - buffer);
+      roi.y = (roi.y - buffer) < 0 ? 0 : (roi.y - buffer);
+      roi.width = (roi.x + roi.width + (2 * buffer)) > rgb_image.size().width ? (rgb_image.size().width - roi.x) : (roi.width + (2 * buffer));
+      roi.height = (roi.y + roi.height + (2 * buffer)) > rgb_image.size().height ? (rgb_image.size().height - roi.y) : (roi.height + (2 * buffer));
+    }
+
+    if (roi.width > 0 && rgb_image.size().width  == original_frame_width && rgb_image.size().height == original_frame_height)
+    {
+      // Crop the RGB and GrayScale frame based on ROI
+      rgb_image_roi = rgb_image(roi);
+      greyScale_image_roi = greyScale_image(roi);
+    }
+    else
+    {
+      rgb_image_roi = rgb_image;
+      greyScale_image_roi = greyScale_image;
+    }
+
+    std::cout << "Image size: " << rgb_image.size() << " -> " << rgb_image_roi.size() << std::endl;
+
+    gettimeofday(&start, NULL);
+
+    // results will be stored in face_model
+    bool landmark_detection_success = LandmarkDetector::DetectLandmarksInVideo(rgb_image_roi, face_model, det_parameters, greyScale_image_roi);
+
+    gettimeofday(&stop, NULL);
+    printf("DetectLandmarksInVideo: %lu\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec);
+
+    string json;
+    if (landmark_detection_success)
+    {
+      gettimeofday(&start, NULL);
+
+      face_analyser.PredictStaticAUsAndComputeFeatures(rgb_image, face_model.detected_landmarks);
+
+      auto aus_intensity = face_analyser.GetCurrentAUsReg();
+      auto aus_presence = face_analyser.GetCurrentAUsClass();
+
+      json = convertToJSON(roi, aus_intensity, aus_presence);
+
+      gettimeofday(&stop, NULL);
+      printf("PredictStaticAUsAndComputeFeatures & convertToJSON: %lu\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec);
+    }
+    else
+    {
+      // Tracking or detection failed; so reset the model and set ROI to 0 in order to receive full frame from ZMQ
+      if (
+        (!face_model.tracking_initialised && (face_model.failures_in_a_row + 1) % (det_parameters.reinit_video_every * 6) == 0) 
+        || (face_model.tracking_initialised && !face_model.detection_success && det_parameters.reinit_video_every > 0 && face_model.failures_in_a_row % det_parameters.reinit_video_every == 0))
+      {
+        std::cout << "RESET" << std::endl;
+
+        roi.x = 0;
+        roi.y = 0;
+        roi.width = 0;
+        roi.height = 0;
+
+        face_model.Reset();
+      }
+
+      json = convertToJSON(roi);
+    }
+
+    gettimeofday(&stop_all, NULL);
+    printf("[%d] All: %lu\n\n", frame_count, (stop_all.tv_sec - start_all.tv_sec) * 1000000 + stop_all.tv_usec - start_all.tv_usec);
+
+    // Send reply back to client
+    zmq::message_t reply(json.length());
+    memcpy(reply.data(), json.c_str(), json.length());
+    sock.send(reply, zmq::send_flags::none);
+
+    // Save image
+		for(int j = 0; j < face_model.detected_landmarks.rows / 2; j++){
+			float x = face_model.detected_landmarks[j][0];
+			float y = face_model.detected_landmarks[j + face_model.detected_landmarks.rows / 2][0];
+			cv::circle(rgb_image_roi, cv::Point2f(x,y), 4, cv::Scalar(255, 0, 0), cv::FILLED, cv::LINE_8);
+		}
+		cv::imwrite("/Users/aykut/Desktop/TUM/23SS/Thesis/openface_zmq/OpenFace/test/" + to_string(frame_count) + ".jpg", rgb_image_roi);
+
+    frame_count++;
+  }
+
+  return 0;
+}
