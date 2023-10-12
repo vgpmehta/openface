@@ -83,8 +83,8 @@ std::vector<std::string> get_arguments(int argc, char **argv)
 
 string convertToJSON(cv::Rect_<float> roi, vector<pair<string, double>> intensity, vector<pair<string, double>> presence)
 {
-  std::string json = "{\"roi\":{\"x\":" + to_string(((int)roi.x) - 1) + ",\"y\":" + to_string(((int)roi.y) - 1) +
-                     ",\"width\":" + to_string(((int)roi.width + 2)) + ",\"height\":" + to_string(((int)roi.height) + 2);
+  std::string json = "{\"roi\":{\"x\":" + to_string((int) roi.x) + ",\"y\":" + to_string((int) roi.y) +
+                     ",\"width\":" + to_string((int) roi.width) + ",\"height\":" + to_string((int) roi.height);
 
   json = json + "},\"intensity\":{";
 
@@ -117,8 +117,8 @@ string convertToJSON(cv::Rect_<float> roi, vector<pair<string, double>> intensit
 
 string convertToJSON(cv::Rect_<float> roi)
 {
-  std::string json = "{\"roi\":{\"x\":" + to_string(((int)roi.x) - 1) + ",\"y\":" + to_string(((int)roi.y) - 1) +
-                     ",\"width\":" + to_string(((int)roi.width) + 2) + ",\"height\":" + to_string(((int)roi.height) + 2);
+  std::string json = "{\"roi\":{\"x\":" + to_string((int) roi.x) + ",\"y\":" + to_string((int) roi.y) +
+                     ",\"width\":" + to_string((int) roi.width) + ",\"height\":" + to_string((int) roi.height);
 
   json = json + "},\"intensity\":{\"AU01\":\"-\",\"AU02\":\"-\",\"AU04\":\"-\",\"AU05\":\"-\"," +
          "\"AU06\":\"-\",\"AU07\":\"-\",\"AU09\":\"-\",\"AU10\":\"-\",\"AU12\":\"-\",\"AU14\":\"-\"," +
@@ -152,12 +152,16 @@ void loadFaceModel(LandmarkDetector::CLNF &clnf_model, LandmarkDetector::FaceMod
   }
 
   // Warm up the models
-  // cv::Mat dummy_image = cv::Mat::zeros(cv::Size(640, 480), CV_8UC3);
-  // std::cout << "DUMMY: " << dummy_image.size() << " | " << dummy_image.type() << std::endl;
-  // for (int i = 0; i < 5; ++i)
-  // {
-  //   LandmarkDetector::DetectLandmarksInVideo(dummy_image, clnf_model, params, dummy_image);
-  // }
+  std::cout << "Warming up the models..." << std::endl;
+  cv::Mat dummy_image = cv::Mat::zeros(cv::Size(640, 480), CV_8UC3);
+  for (int i = 0; i < 10; ++i)
+  {
+    LandmarkDetector::DetectLandmarksInVideo(dummy_image, clnf_model, params, dummy_image);
+  }
+  std::cout << "Warm up runs are completed" << std::endl;
+
+  // Reset the model parameters
+  clnf_model.Reset();
 }
 
 cv::Rect_<float> detectSingleFace(const cv::Mat &rgb_image, LandmarkDetector::CLNF &clnf_model, LandmarkDetector::FaceModelParameters &params, cv::Mat &grayscale_image)
@@ -178,6 +182,25 @@ cv::Rect_<float> detectSingleFace(const cv::Mat &rgb_image, LandmarkDetector::CL
     float confidence;
     LandmarkDetector::DetectSingleFaceMTCNN(bounding_box, rgb_image, clnf_model.face_detector_MTCNN, confidence);
   }
+
+  // Add some buffer for the bounding_box
+  int buffer = max(bounding_box.width, bounding_box.height) / 4;
+  bounding_box.x = bounding_box.x - buffer;
+  bounding_box.y = bounding_box.y - buffer;
+  bounding_box.width = bounding_box.width + (2 * buffer);
+  bounding_box.height = bounding_box.height + (2 * buffer);
+
+  // Cast bounding_box to integer
+  bounding_box.x = (int) bounding_box.x - 1;
+  bounding_box.y = (int) bounding_box.y - 1;
+  bounding_box.width = (int) bounding_box.width + 2;
+  bounding_box.height = (int) bounding_box.height + 2;
+
+  // Check image boundaries
+  bounding_box.x = bounding_box.x > 0 ? bounding_box.x : 0;
+  bounding_box.y = bounding_box.y > 0 ? bounding_box.y : 0;
+  bounding_box.width = (bounding_box.x + bounding_box.width) < rgb_image.size().width ? bounding_box.width : (rgb_image.size().width - bounding_box.x);
+  bounding_box.height = (bounding_box.y + bounding_box.height) < rgb_image.size().height ? bounding_box.height : (rgb_image.size().height - bounding_box.y);
 
   return bounding_box;
 }
@@ -216,11 +239,12 @@ int main(int argc, char **argv)
   std::cout << "Opening socket on port " + port << std::endl;
   sock.connect("tcp://localhost:" + port);
 
-  int frame_count = 0;
   cv::Rect_<float> roi(0, 0, 0, 0);
   cv::Mat greyScale_image, rgb_image_roi, greyScale_image_roi;
   int original_frame_width, original_frame_height;
 
+  // TODO: remove these since they are only used for debugging
+  int frame_count = 0;
   struct timeval stop, start, stop_all, start_all;
 
   while (true)
@@ -249,13 +273,6 @@ int main(int argc, char **argv)
       original_frame_height = rgb_image.size().height;
 
       roi = detectSingleFace(rgb_image, face_model, det_parameters, greyScale_image);
-
-      // Add some buffer for the ROI
-      int buffer = roi.height / 4;
-      roi.x = (roi.x - buffer) < 0 ? 0 : (roi.x - buffer);
-      roi.y = (roi.y - buffer) < 0 ? 0 : (roi.y - buffer);
-      roi.width = (roi.x + roi.width + (2 * buffer)) > rgb_image.size().width ? (rgb_image.size().width - roi.x) : (roi.width + (2 * buffer));
-      roi.height = (roi.y + roi.height + (2 * buffer)) > rgb_image.size().height ? (rgb_image.size().height - roi.y) : (roi.height + (2 * buffer));
     }
 
     if (roi.width > 0 && rgb_image.size().width  == original_frame_width && rgb_image.size().height == original_frame_height)
@@ -323,13 +340,13 @@ int main(int argc, char **argv)
     memcpy(reply.data(), json.c_str(), json.length());
     sock.send(reply, zmq::send_flags::none);
 
-    // Save image
-		for(int j = 0; j < face_model.detected_landmarks.rows / 2; j++){
-			float x = face_model.detected_landmarks[j][0];
-			float y = face_model.detected_landmarks[j + face_model.detected_landmarks.rows / 2][0];
-			cv::circle(rgb_image_roi, cv::Point2f(x,y), 4, cv::Scalar(255, 0, 0), cv::FILLED, cv::LINE_8);
-		}
-		cv::imwrite("/Users/aykut/Desktop/TUM/23SS/Thesis/openface_zmq/OpenFace/test/" + to_string(frame_count) + ".jpg", rgb_image_roi);
+    // Save image for debugging purposes
+		// for(int j = 0; j < face_model.detected_landmarks.rows / 2; j++){
+		// 	float x = face_model.detected_landmarks[j][0];
+		// 	float y = face_model.detected_landmarks[j + face_model.detected_landmarks.rows / 2][0];
+		// 	cv::circle(rgb_image_roi, cv::Point2f(x,y), 4, cv::Scalar(255, 0, 0), cv::FILLED, cv::LINE_8);
+		// }
+		// cv::imwrite("../../experimental-hub-openface-test/" + to_string(frame_count) + ".jpg", rgb_image_roi);
 
     frame_count++;
   }
