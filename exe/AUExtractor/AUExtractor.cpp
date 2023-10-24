@@ -235,9 +235,10 @@ int main(int argc, char **argv)
   // ZMQ preparation
   zmq::context_t ctx;
   zmq::socket_t sock(ctx, ZMQ_REP);
+  std::string addr{"localhost"};
   std::string port{argc > 1 ? arguments[1] : "5555"};
-  std::cout << "Opening socket on port " + port << std::endl;
-  sock.connect("tcp://localhost:" + port);
+  std::cout << "Connecting socket on " + addr + ":" + port << std::endl;
+  sock.connect("tcp://" + addr + ":" + port);
 
   cv::Rect_<float> roi(0, 0, 0, 0);
   cv::Mat greyScale_image, rgb_image_roi, greyScale_image_roi;
