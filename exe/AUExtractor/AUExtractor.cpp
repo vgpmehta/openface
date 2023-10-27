@@ -265,7 +265,7 @@ int main(int argc, char **argv)
     cv::cvtColor(rgb_image, greyScale_image, cv::COLOR_BGR2GRAY);
 
     gettimeofday(&stop, NULL);
-    printf("Decode: %f\n", (double) ((stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec) / 1000);
+    printf("Decode: %f\n", (double) ((stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec) / 1000000);
 
     // Detect ROI
     if (roi.width == 0)
@@ -296,7 +296,7 @@ int main(int argc, char **argv)
     bool landmark_detection_success = LandmarkDetector::DetectLandmarksInVideo(rgb_image_roi, face_model, det_parameters, greyScale_image_roi);
 
     gettimeofday(&stop, NULL);
-    printf("DetectLandmarksInVideo: %f\n", (double) ((stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec) / 1000);
+    printf("DetectLandmarksInVideo: %f\n", (double) ((stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec) / 1000000);
 
     string json;
     if (landmark_detection_success)
@@ -311,7 +311,7 @@ int main(int argc, char **argv)
       json = convertToJSON(roi, aus_intensity, aus_presence);
 
       gettimeofday(&stop, NULL);
-      printf("PredictStaticAUsAndComputeFeatures & convertToJSON: %f\n", (double)((stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec) / 1000);
+      printf("PredictStaticAUsAndComputeFeatures & convertToJSON: %f\n", (double)((stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec) / 1000000);
     }
     else
     {
@@ -334,7 +334,7 @@ int main(int argc, char **argv)
     }
 
     gettimeofday(&stop_all, NULL);
-    printf("[%d] All: %f\n\n", frame_count, (double) ((stop_all.tv_sec - start_all.tv_sec) * 1000000 + stop_all.tv_usec - start_all.tv_usec) / 1000);
+    printf("[%d] All: %f\n\n", frame_count, (double) ((stop_all.tv_sec - start_all.tv_sec) * 1000000 + stop_all.tv_usec - start_all.tv_usec) / 1000000);
 
     // Send reply back to client
     zmq::message_t reply(json.length());
