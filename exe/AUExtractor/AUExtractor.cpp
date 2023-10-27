@@ -83,10 +83,12 @@ std::vector<std::string> get_arguments(int argc, char **argv)
 
 string convertToJSON(cv::Rect_<float> roi, vector<pair<string, double>> intensity, vector<pair<string, double>> presence)
 {
-  std::string json = "{\"roi\":{\"x\":" + to_string((int) roi.x) + ",\"y\":" + to_string((int) roi.y) +
-                     ",\"width\":" + to_string((int) roi.width) + ",\"height\":" + to_string((int) roi.height);
+  std::string json = "{";
 
-  json = json + "},\"intensity\":{";
+  json = json + "\"roi\":{\"x\":" + to_string((int) roi.x) + ",\"y\":" + to_string((int) roi.y) +
+    ",\"width\":" + to_string((int) roi.width) + ",\"height\":" + to_string((int) roi.height) + "},";
+
+  json = json + "\"intensity\":{";
 
   for (int i = 0; i < intensity.size(); i++)
   {
@@ -117,15 +119,37 @@ string convertToJSON(cv::Rect_<float> roi, vector<pair<string, double>> intensit
 
 string convertToJSON(cv::Rect_<float> roi)
 {
-  std::string json = "{\"roi\":{\"x\":" + to_string((int) roi.x) + ",\"y\":" + to_string((int) roi.y) +
-                     ",\"width\":" + to_string((int) roi.width) + ",\"height\":" + to_string((int) roi.height);
+  std::string json = "{";
+    
+  json = json + "\"roi\":{\"x\":" + to_string((int) roi.x) + ",\"y\":" + to_string((int) roi.y) +
+    ",\"width\":" + to_string((int) roi.width) + ",\"height\":" + to_string((int) roi.height) + "},";
 
-  json = json + "},\"intensity\":{\"AU01\":\"-\",\"AU02\":\"-\",\"AU04\":\"-\",\"AU05\":\"-\"," +
-         "\"AU06\":\"-\",\"AU07\":\"-\",\"AU09\":\"-\",\"AU10\":\"-\",\"AU12\":\"-\",\"AU14\":\"-\"," +
-         "\"AU15\":\"-\",\"AU17\":\"-\",\"AU20\":\"-\",\"AU23\":\"-\",\"AU25\":\"-\",\"AU26\":\"-\",\"AU45\":\"-\"}," +
-         "\"presence\":{\"AU01\":\"-\",\"AU02\":\"-\",\"AU04\":\"-\",\"AU05\":\"-\",\"AU06\":\"-\",\"AU07\":\"-\"," +
-         "\"AU09\":\"-\",\"AU10\":\"-\",\"AU12\":\"-\",\"AU14\":\"-\",\"AU15\":\"-\",\"AU17\":\"-\",\"AU20\":\"-\"," +
-         "\"AU23\":\"-\",\"AU25\":\"-\",\"AU26\":\"-\",\"AU28\":\"-\",\"AU45\":\"-\"}}";
+  json = json + "\"intensity\":{\"AU01\":\"-\",\"AU02\":\"-\",\"AU04\":\"-\",\"AU05\":\"-\"," +
+    "\"AU06\":\"-\",\"AU07\":\"-\",\"AU09\":\"-\",\"AU10\":\"-\",\"AU12\":\"-\",\"AU14\":\"-\"," +
+    "\"AU15\":\"-\",\"AU17\":\"-\",\"AU20\":\"-\",\"AU23\":\"-\",\"AU25\":\"-\",\"AU26\":\"-\",\"AU45\":\"-\"},";
+
+  json = json + "\"presence\":{\"AU01\":\"-\",\"AU02\":\"-\",\"AU04\":\"-\",\"AU05\":\"-\",\"AU06\":\"-\",\"AU07\":\"-\"," +
+    "\"AU09\":\"-\",\"AU10\":\"-\",\"AU12\":\"-\",\"AU14\":\"-\",\"AU15\":\"-\",\"AU17\":\"-\",\"AU20\":\"-\"," +
+    "\"AU23\":\"-\",\"AU25\":\"-\",\"AU26\":\"-\",\"AU28\":\"-\",\"AU45\":\"-\"}";
+  
+  json = json + "}";
+
+  return json;
+}
+
+string convertToJSON()
+{
+  std::string json = "{";
+    
+  json = json + "\"intensity\":{\"AU01\":\"-\",\"AU02\":\"-\",\"AU04\":\"-\",\"AU05\":\"-\"," +
+    "\"AU06\":\"-\",\"AU07\":\"-\",\"AU09\":\"-\",\"AU10\":\"-\",\"AU12\":\"-\",\"AU14\":\"-\"," +
+    "\"AU15\":\"-\",\"AU17\":\"-\",\"AU20\":\"-\",\"AU23\":\"-\",\"AU25\":\"-\",\"AU26\":\"-\",\"AU45\":\"-\"},";
+
+  json = json + "\"presence\":{\"AU01\":\"-\",\"AU02\":\"-\",\"AU04\":\"-\",\"AU05\":\"-\",\"AU06\":\"-\",\"AU07\":\"-\"," +
+    "\"AU09\":\"-\",\"AU10\":\"-\",\"AU12\":\"-\",\"AU14\":\"-\",\"AU15\":\"-\",\"AU17\":\"-\",\"AU20\":\"-\"," +
+    "\"AU23\":\"-\",\"AU25\":\"-\",\"AU26\":\"-\",\"AU28\":\"-\",\"AU45\":\"-\"}";
+  
+  json = json + "}";
 
   return json;
 }
@@ -242,7 +266,9 @@ int main(int argc, char **argv)
 
   cv::Rect_<float> roi(0, 0, 0, 0);
   cv::Mat greyScale_image, rgb_image_roi, greyScale_image_roi;
-  int original_frame_width, original_frame_height;
+  int original_frame_width = -1;
+  int original_frame_height = -1;
+  bool init_roi = true;
 
   // TODO: remove these since they are only used for debugging
   int frame_count = 0;
@@ -267,16 +293,20 @@ int main(int argc, char **argv)
     gettimeofday(&stop, NULL);
     printf("Decode: %f\n", (double) ((stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec) / 1000000);
 
-    // Detect ROI
-    if (roi.width == 0)
+    if (original_frame_width == -1 && original_frame_height == -1)
     {
       original_frame_width = rgb_image.size().width;
       original_frame_height = rgb_image.size().height;
-
-      roi = detectSingleFace(rgb_image, face_model, det_parameters, greyScale_image);
     }
 
-    if (roi.width > 0 && rgb_image.size().width  == original_frame_width && rgb_image.size().height == original_frame_height)
+    // Calculate ROI
+    if (init_roi)
+    {
+      roi = detectSingleFace(rgb_image, face_model, det_parameters, greyScale_image);
+      init_roi = false;
+    }
+
+    if (roi.width > 2 && rgb_image.size().width  == original_frame_width && rgb_image.size().height == original_frame_height)
     {
       // Crop the RGB and GrayScale frame based on ROI
       rgb_image_roi = rgb_image(roi);
@@ -322,15 +352,16 @@ int main(int argc, char **argv)
       {
         std::cout << "RESET" << std::endl;
 
-        roi.x = 0;
-        roi.y = 0;
-        roi.width = 0;
-        roi.height = 0;
+        init_roi = true;
 
         face_model.Reset();
-      }
 
-      json = convertToJSON(roi);
+        json = convertToJSON();
+      } 
+      else 
+      {
+        json = convertToJSON(roi);
+      }
     }
 
     gettimeofday(&stop_all, NULL);
