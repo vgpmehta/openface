@@ -34,7 +34,6 @@ if [[ `lsb_release -rs` != "18.04" ]]
 fi
 
 sudo apt-get -y install build-essential
-sudo apt-get -y install gcc-8 g++-8
 
 # Ubuntu 16.04 does not have newest CMake so need to build it manually
 if [[ `lsb_release -rs` < "18.04" ]]; then   
