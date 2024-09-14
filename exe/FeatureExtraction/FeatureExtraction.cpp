@@ -90,7 +90,7 @@ int main(int argc, char **argv)
 	if (arguments.size() == 1)
 	{
 		std::cout << "For command line arguments see:" << std::endl;
-		std::cout << " https://github.com/TadasBaltrusaitis/OpenFace/wiki/Command-line-arguments";
+		std::cout << " https://github.com/TadasBaltrusaitis/OpenFace/wiki/Command-line-arguments" << std::endl;
 		return 0;
 	}
 
